@@ -19,19 +19,23 @@ import principal.Sprite;
 
 public class PantallaJuego implements Pantalla {
 
-    // Constantes Asteroides
-    private final static int LADO_ASTEROIDE = 150;
-    private final static int INICIO_ASTEROIDE = 20;
+    // Constantes de las bolas
+    private final static int LADO_BOLA = 200;
+    private final static int INICIO_BOLA = 20;
     private final static int VELOCIDAD_BOLAS = 4;
+    private final static int PUNTUACION_BOLAS_GRANDES = 200;
+    private final static int PUNTUACION_BOLAS_MEDIANAS = 400;
+    private final static int PUNTUACION_BOLAS_PEQUENIAS = 800;
+    private final static int PUNTUACION_BOLAS_MINIS = 1600;
 
-    // Constantes de la Nave
-    private final static int ANCHO_NAVE = 100;
-    private final static int ALTO_NAVE = 100;
+    // Constantes de nuestro player
+    private final static int ANCHO_PLAYER = 100;
+    private final static int ALTO_PLAYER = 100;
 
-    // Constantes disparo
-    private final static int ANCHO_DISPARO = 30;
-    private final static int ALTO_DISPARO = 60;
-    private static final int VELOCIDADY_PROYECTIL = 20;
+    // Constantes arpon
+    private final static int ANCHO_ARPON = 30;
+    private final static int ALTO_ARPON = 60;
+    private static final int VELOCIDADY_ARPON = 20;
 
     // Referencia panelJuego
     private PanelJuego panelJuego;
@@ -42,12 +46,15 @@ public class PantallaJuego implements Pantalla {
     private BufferedImage fondo;
     private BufferedImage vida;
     private Sprite proyectil;
-    private ArrayList<Sprite> asteroides;
+    private ArrayList<Sprite> bolas;
     private Sprite nave;
     private String tiempo;
+    private int puntos;
     private double tiempoTranscurrido;
     private double tiempoOriginal;
-    private Font fuente;
+    private Font fuenteTiempo;
+    private Font fuenteGeneral;
+    private DecimalFormat df;
 
     public PantallaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -56,17 +63,20 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void inicializarPantalla() {
-        fuente = new Font("Comic Sans MS", Font.BOLD, 50);
+        fuenteTiempo = new Font("Comic Sans MS", Font.BOLD, 50);
+        fuenteGeneral = new Font("Arial", Font.BOLD, 20);
         tiempoOriginal = System.nanoTime();
-        asteroides = new ArrayList<Sprite>();
+        bolas = new ArrayList<Sprite>();
         bloques = new ArrayList<Sprite>();
 
-        asteroides.add(new Sprite("Imagenes/bolaRoja.png", LADO_ASTEROIDE, LADO_ASTEROIDE, INICIO_ASTEROIDE + 150,
-                INICIO_ASTEROIDE, VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
-        asteroides.add(new Sprite("Imagenes/bolaRoja.png", LADO_ASTEROIDE, LADO_ASTEROIDE, INICIO_ASTEROIDE,
-                INICIO_ASTEROIDE, VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA + 150, INICIO_BOLA,
+                VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA, INICIO_BOLA, VELOCIDAD_BOLAS,
+                VELOCIDAD_BOLAS));
 
         tiempo = "";
+
+        puntos = 0;
 
         proyectil = null;
 
@@ -92,19 +102,21 @@ public class PantallaJuego implements Pantalla {
         rellenarFondo(g);
 
         g.setColor(Color.YELLOW);
-        g.setFont(fuente);
+        g.setFont(fuenteTiempo);
         g.drawString("TIME " + tiempo, 610, 820);
 
+        g.setFont(fuenteGeneral);
+        g.drawString("PUNTUACIÓN " + String.format("%06d",puntos), 1100, 810);
+
         g.setColor(Color.YELLOW);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString("VIDAS", 40, 810);
         g.drawImage(vidas, 10, 830, null);
         g.drawImage(vidas, 50, 830, null);
         g.drawImage(vidas, 90, 830, null);
 
         // TENER EN CUENTA SPRITES!!!
-        for (int i = 0; i < asteroides.size(); i++) {
-            asteroides.get(i).estanpar(g);
+        for (int i = 0; i < bolas.size(); i++) {
+            bolas.get(i).estanpar(g);
         }
 
         // Si la nave es distnto de null la pintamos
@@ -146,7 +158,7 @@ public class PantallaJuego implements Pantalla {
             e.printStackTrace();
         }
 
-        if (asteroides.size() == 0) {
+        if (bolas.size() == 0) {
             panelJuego.cambiarPantalla(new PantallaGanar(panelJuego, tiempo));
         } else {
             moverSprites();
@@ -159,7 +171,7 @@ public class PantallaJuego implements Pantalla {
      */
     public void actualizarTiempo() {
         double seconds = (tiempoTranscurrido / 1e+9);
-        DecimalFormat df = new DecimalFormat("000");
+        df = new DecimalFormat("000");
         tiempo = df.format(seconds);
     }
 
@@ -178,12 +190,12 @@ public class PantallaJuego implements Pantalla {
     @Override
     public void pulsarRaton(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
-            nave = new Sprite("Imagenes/playerDerecha.png", ANCHO_NAVE, ALTO_NAVE, 25,
-                    panelJuego.getHeight() - 125 - ALTO_NAVE, 50);
+            nave = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
+                    panelJuego.getHeight() - 125 - ALTO_PLAYER, 50);
         }
 
         if (SwingUtilities.isLeftMouseButton(e)) {
-            asteroides.add(new Sprite("Imagenes/bolaRoja.png", LADO_ASTEROIDE, LADO_ASTEROIDE, e.getX(), e.getY()));
+            bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, e.getX(), e.getY()));
         }
     }
 
@@ -201,8 +213,8 @@ public class PantallaJuego implements Pantalla {
 
     public void moverSprites() {
         // Movemos los asteorides
-        for (int i = 0; i < asteroides.size(); i++) {
-            asteroides.get(i).mover(panelJuego.getWidth(), panelJuego.getHeight());
+        for (int i = 0; i < bolas.size(); i++) {
+            bolas.get(i).mover(panelJuego.getWidth(), panelJuego.getHeight());
         }
 
         // El disparo se va moviendo
@@ -213,17 +225,17 @@ public class PantallaJuego implements Pantalla {
 
     public void comprobarColisiones() {
         // Comprobamos colisiones
-        for (int i = 0; i < asteroides.size(); i++) {
+        for (int i = 0; i < bolas.size(); i++) {
 
             if (bloques.size() > 0) {
                 for (int z = 0; z < bloques.size(); z++) {
-                    asteroides.get(i).colisionPorArribaAbajo(bloques.get(z));
-                    asteroides.get(i).colisionPorLados(bloques.get(z));
+                    bolas.get(i).colisionPorArribaAbajo(bloques.get(z));
+                    bolas.get(i).colisionPorLados(bloques.get(z));
                 }
             }
 
             if (nave != null) {
-                if (asteroides.get(i).colisionCuadradoCirculo(nave)) {
+                if (bolas.get(i).colisionCuadradoCirculo(nave)) {
                     // nave = null;
                     // panelJuego.cambiarPantalla(new PantallaPerder(panelJuego));
                 }
@@ -231,17 +243,18 @@ public class PantallaJuego implements Pantalla {
 
             // Si los asteriodes llegan a 0 paramos el hilo
             if (proyectil != null) {
-                if (asteroides.get(i).colisionCuadradoCirculo(proyectil)) {
+                if (bolas.get(i).colisionCuadradoCirculo(proyectil)) {
                     proyectil = null;
-                    if (asteroides.get(i).getAncho() >= 40) {
-                        asteroides.add(new Sprite("Imagenes/bolaRoja.png", asteroides.get(i).getAncho() / 2,
-                                asteroides.get(i).getAlto() / 2, asteroides.get(i).getPosX() - 60,
-                                asteroides.get(i).getPosY(), VELOCIDAD_BOLAS, -VELOCIDAD_BOLAS));
-                        asteroides.add(new Sprite("Imagenes/bolaRoja.png", asteroides.get(i).getAncho() / 2,
-                                asteroides.get(i).getAlto() / 2, asteroides.get(i).getPosX() + 60,
-                                asteroides.get(i).getPosY(), VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+                    if (bolas.get(i).getAncho() >= 40) {
+                        bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
+                                bolas.get(i).getAlto() / 2, bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(),
+                                VELOCIDAD_BOLAS, -VELOCIDAD_BOLAS));
+                        bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
+                                bolas.get(i).getAlto() / 2, bolas.get(i).getPosX() + 60, bolas.get(i).getPosY(),
+                                VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
                     }
-                    asteroides.remove(i);
+                    actualizarPuntos(bolas.get(i).getAncho());
+                    bolas.remove(i);
                 }
             }
 
@@ -258,6 +271,24 @@ public class PantallaJuego implements Pantalla {
 
     }
 
+    private void actualizarPuntos(int ancho) {
+        switch (ancho) {
+            case 200:
+                puntos += PUNTUACION_BOLAS_GRANDES;
+                break;
+
+            case 100:
+                puntos += PUNTUACION_BOLAS_MEDIANAS;
+                break;
+            case 50:
+                puntos += PUNTUACION_BOLAS_PEQUENIAS;
+                break;
+            case 25:
+                puntos += PUNTUACION_BOLAS_MINIS;
+                break;
+        }
+    }
+
     @Override
     public void pulsarTeclado(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_A) {
@@ -272,9 +303,9 @@ public class PantallaJuego implements Pantalla {
             if (nave != null) {
                 if (proyectil == null) {
                     nave.animacionDisparar();
-                    proyectil = new Sprite("Imagenes/disparo.png", ANCHO_DISPARO, ALTO_DISPARO,
-                            nave.getPosX() + (nave.getAncho() / 2 - ANCHO_DISPARO / 2), nave.getPosY() + 40,
-                            VELOCIDADY_PROYECTIL, 0);
+                    proyectil = new Sprite("Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
+                            nave.getPosX() + (nave.getAncho() / 2 - ANCHO_ARPON / 2), nave.getPosY() + 40,
+                            VELOCIDADY_ARPON, 0);
                 }
             }
         }
@@ -282,8 +313,8 @@ public class PantallaJuego implements Pantalla {
     }
 
     public void cargarNivelUno() {
-        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 200));
-        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 200));
+        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
+        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 300));
 
     }
 }

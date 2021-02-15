@@ -296,13 +296,13 @@ public class Sprite {
         int xCuadrado = cuadrado.getPosX();
         int cuadradoAncho = xCuadrado + cuadrado.getAncho();
 
-        if ((((posY + alto) > yCuadrado) && (posY < cuadradoAlto))
-                && ((posX > xCuadrado) && (((posX + ancho) < cuadradoAncho) || (posX < cuadradoAncho)))) {
+        //Por arriba
+        if ((((posY + alto) > yCuadrado) && (posY < cuadradoAlto)) && (((posX + ancho) > xCuadrado) && ((posX < cuadradoAncho)))) {
             velY = -Math.abs(velY);
         }
 
-        if ((((posY) < cuadradoAlto) && (posY > yCuadrado))
-                && ((posX > xCuadrado) && (((posX + ancho) < cuadradoAncho) || ((posX) < cuadradoAncho)))) {
+        //Por abajo
+        if ((((posY) < cuadradoAlto) && (posY > yCuadrado)) && (((posX+ancho) > xCuadrado) && (posX < cuadradoAncho))) {
             velY = Math.abs(velY);
             velX = velX*-1;
         }
