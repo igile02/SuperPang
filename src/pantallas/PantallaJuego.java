@@ -3,6 +3,7 @@ package pantallas;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -12,7 +13,10 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import principal.PanelJuego;
 import principal.Sprite;
@@ -35,7 +39,7 @@ public class PantallaJuego implements Pantalla {
     // Constantes arpon
     private final static int ANCHO_ARPON = 30;
     private final static int ALTO_ARPON = 60;
-    private static final int VELOCIDADY_ARPON = 20;
+    private static final int VELOCIDADY_ARPON = 30;
 
     // Referencia panelJuego
     private PanelJuego panelJuego;
@@ -52,9 +56,11 @@ public class PantallaJuego implements Pantalla {
     private int puntos;
     private double tiempoTranscurrido;
     private double tiempoOriginal;
-    private Font fuenteTiempo;
-    private Font fuenteGeneral;
+    private boolean esFinal;
+    private boolean esDescanso;
     private DecimalFormat df;
+    private int nivel;
+    private Font pixel;
 
     public PantallaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -63,11 +69,11 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void inicializarPantalla() {
-        fuenteTiempo = new Font("Comic Sans MS", Font.BOLD, 50);
-        fuenteGeneral = new Font("Arial", Font.BOLD, 20);
+        cargarFuente();
         tiempoOriginal = System.nanoTime();
         bolas = new ArrayList<Sprite>();
         bloques = new ArrayList<Sprite>();
+        nivel = 1;
 
         bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA + 150, INICIO_BOLA,
                 VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
@@ -97,19 +103,32 @@ public class PantallaJuego implements Pantalla {
         cargarNivelUno();
     }
 
+    private void cargarFuente() {
+        InputStream is=null;
+        try {
+            is = new FileInputStream("Fonts/pixel.ttf");
+            pixel = Font.createFont(Font.TRUETYPE_FONT, is);
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+        }
+        pixel = pixel.deriveFont(Font.BOLD, 18);
+    }
+
     @Override
     public void pintarPantalla(Graphics g) {
         rellenarFondo(g);
 
         g.setColor(Color.YELLOW);
-        g.setFont(fuenteTiempo);
-        g.drawString("TIME " + tiempo, 610, 820);
+        g.setFont(pixel.deriveFont(Font.BOLD,50));
+        g.drawString("TIME " + tiempo, 600, 830);
 
-        g.setFont(fuenteGeneral);
-        g.drawString("PUNTUACIÓN " + String.format("%06d",puntos), 1100, 810);
+        g.setFont(pixel);
+        g.drawString("NIVEL " + nivel, 730, 860);
+
+        g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
 
         g.setColor(Color.YELLOW);
-        g.drawString("VIDAS", 40, 810);
+        g.drawString("VIDAS", 30, 810);
         g.drawImage(vidas, 10, 830, null);
         g.drawImage(vidas, 50, 830, null);
         g.drawImage(vidas, 90, 830, null);
