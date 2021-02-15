@@ -14,7 +14,7 @@ import pantallas.Pantalla;
 import pantallas.PantallaInicio;
 
 /**
- * Ejercicio8-14 PanelJuego
+ * Clase PanelJuego
  * 
  * @author Iván Gil Esteban
  */

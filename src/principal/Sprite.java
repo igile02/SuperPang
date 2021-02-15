@@ -9,7 +9,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 /**
- * Ejercicio8-14 Sprite
+ * Clase Sprite
  * 
  * @author Iván Gil Esteban
  */

@@ -3,7 +3,7 @@ package principal;
 import java.awt.EventQueue;
 
 /**
- * Ejercicio8-14
+ * Super Pang
  * Principal
  * @author Iván Gil Esteban
  */

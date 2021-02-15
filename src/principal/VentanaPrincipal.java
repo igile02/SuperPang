@@ -3,7 +3,7 @@ package principal;
 import java.awt.GridLayout;
 import javax.swing.JFrame;
 /**
- * Ejercicio8-14
+ * Super Pang
  * VentanaPrincipal
  * @author Iván Gil Esteban
  */
