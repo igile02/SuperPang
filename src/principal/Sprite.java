@@ -406,7 +406,7 @@ public class Sprite {
         BufferedImage imagen = null;
         buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
         try {
-            imagen = ImageIO.read(new File("Imagenes/explosion.png"));
+            imagen = ImageIO.read(new File("Imagenes/explosionRoja.png"));
             Graphics g = buffer.getGraphics();
             g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
         } catch (IOException e) {
