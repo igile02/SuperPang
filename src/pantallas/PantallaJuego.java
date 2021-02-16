@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -49,13 +48,14 @@ public class PantallaJuego implements Pantalla {
     private Image img;
     private BufferedImage fondo;
     private BufferedImage vida;
-    private Sprite proyectil;
+    private Sprite arpon;
     private ArrayList<Sprite> bolas;
-    private Sprite nave;
+    private Sprite player;
     private String tiempo;
     private int puntos;
     private double tiempoTranscurrido;
     private double tiempoOriginal;
+    private double tiempoActual;
     private boolean esFinal;
     private boolean esDescanso;
     private DecimalFormat df;
@@ -76,15 +76,15 @@ public class PantallaJuego implements Pantalla {
         nivel = 1;
 
         bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA + 150, INICIO_BOLA,
-                VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+              VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
         bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA, INICIO_BOLA, VELOCIDAD_BOLAS,
                 VELOCIDAD_BOLAS));
 
-        tiempo = "";
+        tiempo = "0";
 
         puntos = 0;
 
-        proyectil = null;
+        arpon = null;
 
         try {
             fondo = ImageIO.read(new File("Imagenes/mexico.png"));
@@ -104,7 +104,7 @@ public class PantallaJuego implements Pantalla {
     }
 
     private void cargarFuente() {
-        InputStream is=null;
+        InputStream is = null;
         try {
             is = new FileInputStream("Fonts/pixel.ttf");
             pixel = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -116,44 +116,50 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void pintarPantalla(Graphics g) {
-        rellenarFondo(g);
+        if (esDescanso) {
+            g.setColor(Color.YELLOW);
+            g.setFont(pixel.deriveFont(Font.BOLD, 50));
+            g.drawString("STAGE COMPLETE", 400, 430);
+        } else {
+            rellenarFondo(g);
 
-        g.setColor(Color.YELLOW);
-        g.setFont(pixel.deriveFont(Font.BOLD,50));
-        g.drawString("TIME " + tiempo, 600, 830);
-
-        g.setFont(pixel);
-        g.drawString("NIVEL " + nivel, 730, 860);
-
-        g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
-
-        g.setColor(Color.YELLOW);
-        g.drawString("VIDAS", 30, 810);
-        g.drawImage(vidas, 10, 830, null);
-        g.drawImage(vidas, 50, 830, null);
-        g.drawImage(vidas, 90, 830, null);
-
-        // TENER EN CUENTA SPRITES!!!
-        for (int i = 0; i < bolas.size(); i++) {
-            bolas.get(i).estanpar(g);
-        }
-
-        // Si la nave es distnto de null la pintamos
-        if (nave != null) {
-            nave.estanpar(g);
-        }
-
-        // Si el proyectis es distinto de null y no se sale de la pantalla lo pintamos
-        if (proyectil != null) {
-            if (proyectil.getAlto() > 740) {
-                proyectil = null;
-            } else {
-                proyectil.estanpar(g);
+            g.setColor(Color.YELLOW);
+            g.setFont(pixel.deriveFont(Font.BOLD, 50));
+            g.drawString("TIME " + tiempo, 600, 830);
+    
+            g.setFont(pixel);
+            g.drawString("NIVEL " + nivel, 730, 860);
+    
+            g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
+    
+            g.setColor(Color.YELLOW);
+            g.drawString("VIDAS", 30, 810);
+            g.drawImage(vidas, 10, 830, null);
+            g.drawImage(vidas, 50, 830, null);
+            g.drawImage(vidas, 90, 830, null);
+    
+            // TENER EN CUENTA SPRITES!!!
+            for (int i = 0; i < bolas.size(); i++) {
+                bolas.get(i).estanpar(g);
             }
-        }
+    
+            // Si el proyectis es distinto de null y no se sale de la pantalla lo pintamos
+            if (arpon != null) {
+                if (arpon.getAlto() > 740) {
+                    arpon = null;
+                } else {
+                    arpon.estanpar(g);
+                }
+            }
 
-        for (int i = 0; i < bloques.size(); i++) {
-            bloques.get(i).estanpar(g);
+            // Si la nave es distnto de null la pintamos
+            if (player != null) {
+                player.estanpar(g);
+            }
+    
+            for (int i = 0; i < bloques.size(); i++) {
+                bloques.get(i).estanpar(g);
+            }
         }
     }
 
@@ -172,17 +178,29 @@ public class PantallaJuego implements Pantalla {
     public void ejecutarFrame() {
         try {
             Thread.sleep(25);
-            contarTiempo();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        if (bolas.size() == 0) {
-            panelJuego.cambiarPantalla(new PantallaGanar(panelJuego, tiempo));
+        if (esDescanso) {
+            try {
+                Thread.sleep(3*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            cambiarNivel(nivel);
+            esDescanso = false;
+            bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 500, 500));
         } else {
-            moverSprites();
-            comprobarColisiones();
-        }
+            if (bolas.size() == 0) {
+                esDescanso = true;
+                nivel++;
+            } else {
+                moverSprites();
+                comprobarColisiones();
+            }
+        }    
+        contarTiempo();    
     }
 
     /**
@@ -202,6 +220,7 @@ public class PantallaJuego implements Pantalla {
         actualizarTiempo();
     }
 
+
     @Override
     public void moverRaton(MouseEvent e) {
     }
@@ -209,7 +228,7 @@ public class PantallaJuego implements Pantalla {
     @Override
     public void pulsarRaton(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
-            nave = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
+            player = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
                     panelJuego.getHeight() - 125 - ALTO_PLAYER, 50);
         }
 
@@ -237,8 +256,8 @@ public class PantallaJuego implements Pantalla {
         }
 
         // El disparo se va moviendo
-        if (proyectil != null) {
-            proyectil.disparar();
+        if (arpon != null) {
+            arpon.disparar();
         }
     }
 
@@ -253,17 +272,17 @@ public class PantallaJuego implements Pantalla {
                 }
             }
 
-            if (nave != null) {
-                if (bolas.get(i).colisionCuadradoCirculo(nave)) {
+            if (player != null) {
+                if (bolas.get(i).colisionCuadradoCirculo(player)) {
                     // nave = null;
                     // panelJuego.cambiarPantalla(new PantallaPerder(panelJuego));
                 }
             }
 
             // Si los asteriodes llegan a 0 paramos el hilo
-            if (proyectil != null) {
-                if (bolas.get(i).colisionCuadradoCirculo(proyectil)) {
-                    proyectil = null;
+            if (arpon != null) {
+                if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
+                    arpon = null;
                     if (bolas.get(i).getAncho() >= 40) {
                         bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
                                 bolas.get(i).getAlto() / 2, bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(),
@@ -276,17 +295,19 @@ public class PantallaJuego implements Pantalla {
                     bolas.remove(i);
                 }
             }
-
         }
 
-        if (bloques.size() > 0 && proyectil != null) {
+        if (bloques.size() > 0 && arpon != null) {
             for (int j = 0; j < bloques.size(); j++) {
-                if (bloques.get(j).colision(proyectil)) {
+                if (bloques.get(j).colision(arpon)) {
                     bloques.remove(j);
-                    proyectil = null;
+                    arpon = null;
                 }
             }
         }
+    }
+
+    private void cambiarNivel(int nivel) {
 
     }
 
@@ -311,19 +332,19 @@ public class PantallaJuego implements Pantalla {
     @Override
     public void pulsarTeclado(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_A) {
-            nave.moverSpriteIzquierda(panelJuego.getWidth() - 30);
+            player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
         }
 
         if (e.getKeyCode() == KeyEvent.VK_D) {
-            nave.moverSpriteDerecha(panelJuego.getWidth() - 30);
+            player.moverSpriteDerecha(panelJuego.getWidth() - 30);
         }
 
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            if (nave != null) {
-                if (proyectil == null) {
-                    nave.animacionDisparar();
-                    proyectil = new Sprite("Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
-                            nave.getPosX() + (nave.getAncho() / 2 - ANCHO_ARPON / 2), nave.getPosY() + 40,
+            if (player != null) {
+                if (arpon == null) {
+                    player.animacionDisparar();
+                    arpon = new Sprite("Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
+                            player.getPosX() + (player.getAncho() / 2 - ANCHO_ARPON / 2), player.getPosY() + 40,
                             VELOCIDADY_ARPON, 0);
                 }
             }
