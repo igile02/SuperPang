@@ -296,15 +296,17 @@ public class Sprite {
         int xCuadrado = cuadrado.getPosX();
         int cuadradoAncho = xCuadrado + cuadrado.getAncho();
 
-        //Por arriba
-        if ((((posY + alto) > yCuadrado) && (posY < cuadradoAlto)) && (((posX + ancho) > xCuadrado) && ((posX < cuadradoAncho)))) {
+        // Por arriba
+        if ((((posY + alto) > yCuadrado) && (posY < cuadradoAlto))
+                && (((posX + ancho) > xCuadrado) && ((posX < cuadradoAncho)))) {
             velY = -Math.abs(velY);
         }
 
-        //Por abajo
-        if ((((posY) < cuadradoAlto) && (posY > yCuadrado)) && (((posX+ancho) > xCuadrado) && (posX < cuadradoAncho))) {
+        // Por abajo
+        if ((((posY) < cuadradoAlto) && (posY > yCuadrado))
+                && (((posX + ancho) > xCuadrado) && (posX < cuadradoAncho))) {
             velY = Math.abs(velY);
-            velX = velX*-1;
+            velX = velX * -1;
         }
     }
 
@@ -315,11 +317,13 @@ public class Sprite {
         int xCuadrado = cuadrado.getPosX();
         int cuadradoAncho = xCuadrado + cuadrado.getAncho();
 
+        // Por la derecha
         if (((posX < cuadradoAncho) && (posX > xCuadrado))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = Math.abs(velX);
         }
 
+        // Por la izquierda
         if ((((posX + ancho) > xCuadrado) && (posX < xCuadrado))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = -Math.abs(velX);
@@ -384,6 +388,42 @@ public class Sprite {
 
     public void setVelY(int velY) {
         this.velY = velY;
+    }
+
+    public void animacionMorir() {
+        BufferedImage imagen = null;
+        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
+        try {
+            imagen = ImageIO.read(new File("Imagenes/playerMorir.png"));
+            Graphics g = buffer.getGraphics();
+            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void explotar() {
+        BufferedImage imagen = null;
+        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
+        try {
+            imagen = ImageIO.read(new File("Imagenes/explosion.png"));
+            Graphics g = buffer.getGraphics();
+            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void playerDerecha() {
+        BufferedImage imagen = null;
+        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
+        try {
+            imagen = ImageIO.read(new File("Imagenes/playerDerecha.png"));
+            Graphics g = buffer.getGraphics();
+            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

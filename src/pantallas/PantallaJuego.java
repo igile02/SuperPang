@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import principal.PanelJuego;
 import principal.Sprite;
+import java.awt.Toolkit;
 
 public class PantallaJuego implements Pantalla {
 
@@ -34,6 +35,7 @@ public class PantallaJuego implements Pantalla {
     // Constantes de nuestro player
     private final static int ANCHO_PLAYER = 100;
     private final static int ALTO_PLAYER = 100;
+    private final static int MAX_VIDAS = 3;
 
     // Constantes arpon
     private final static int ANCHO_ARPON = 30;
@@ -61,6 +63,7 @@ public class PantallaJuego implements Pantalla {
     private DecimalFormat df;
     private int nivel;
     private Font pixel;
+    private int vidasActuales;
 
     public PantallaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -70,15 +73,11 @@ public class PantallaJuego implements Pantalla {
     @Override
     public void inicializarPantalla() {
         cargarFuente();
+        vidasActuales = MAX_VIDAS;
         tiempoOriginal = System.nanoTime();
         bolas = new ArrayList<Sprite>();
         bloques = new ArrayList<Sprite>();
         nivel = 1;
-
-        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA + 150, INICIO_BOLA,
-              VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
-        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, INICIO_BOLA, INICIO_BOLA, VELOCIDAD_BOLAS,
-                VELOCIDAD_BOLAS));
 
         tiempo = "0";
 
@@ -126,23 +125,30 @@ public class PantallaJuego implements Pantalla {
             g.setColor(Color.YELLOW);
             g.setFont(pixel.deriveFont(Font.BOLD, 50));
             g.drawString("TIME " + tiempo, 600, 830);
-    
+
             g.setFont(pixel);
             g.drawString("NIVEL " + nivel, 730, 860);
-    
+
             g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
-    
+
             g.setColor(Color.YELLOW);
             g.drawString("VIDAS", 30, 810);
-            g.drawImage(vidas, 10, 830, null);
-            g.drawImage(vidas, 50, 830, null);
-            g.drawImage(vidas, 90, 830, null);
-    
+            if (vidasActuales == 3) {
+                g.drawImage(vidas, 10, 830, null);
+                g.drawImage(vidas, 50, 830, null);
+                g.drawImage(vidas, 90, 830, null);
+            } else if (vidasActuales == 2) {
+                g.drawImage(vidas, 10, 830, null);
+                g.drawImage(vidas, 50, 830, null);
+            } else if (vidasActuales == 1) {
+                g.drawImage(vidas, 10, 830, null);
+            }
+
             // TENER EN CUENTA SPRITES!!!
             for (int i = 0; i < bolas.size(); i++) {
                 bolas.get(i).estanpar(g);
             }
-    
+
             // Si el proyectis es distinto de null y no se sale de la pantalla lo pintamos
             if (arpon != null) {
                 if (arpon.getAlto() > 740) {
@@ -156,7 +162,7 @@ public class PantallaJuego implements Pantalla {
             if (player != null) {
                 player.estanpar(g);
             }
-    
+
             for (int i = 0; i < bloques.size(); i++) {
                 bloques.get(i).estanpar(g);
             }
@@ -184,7 +190,7 @@ public class PantallaJuego implements Pantalla {
 
         if (esDescanso) {
             try {
-                Thread.sleep(3*1000);
+                Thread.sleep(3 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -199,8 +205,8 @@ public class PantallaJuego implements Pantalla {
                 moverSprites();
                 comprobarColisiones();
             }
-        }    
-        contarTiempo();    
+        }
+        contarTiempo();
     }
 
     /**
@@ -219,7 +225,6 @@ public class PantallaJuego implements Pantalla {
         tiempoTranscurrido = ((System.nanoTime() - tiempoOriginal));
         actualizarTiempo();
     }
-
 
     @Override
     public void moverRaton(MouseEvent e) {
@@ -273,15 +278,40 @@ public class PantallaJuego implements Pantalla {
             }
 
             if (player != null) {
-                if (bolas.get(i).colisionCuadradoCirculo(player)) {
-                    // nave = null;
-                    // panelJuego.cambiarPantalla(new PantallaPerder(panelJuego));
+                if (vidasActuales > 0) {
+                    if (bolas.get(i).colisionCuadradoCirculo(player)) {
+                        vidasActuales--;
+                        player.animacionMorir();
+
+                        panelJuego.repaint();
+                        Toolkit.getDefaultToolkit().sync();
+
+                        try {
+                            Thread.sleep(3 * 1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        respawnear();
+                    }
+                } else {
+                    // Cambiar a gameOver
                 }
             }
 
             // Si los asteriodes llegan a 0 paramos el hilo
             if (arpon != null) {
                 if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
+                    bolas.get(i).explotar();
+                    panelJuego.repaint();
+                    Toolkit.getDefaultToolkit().sync();
+
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     arpon = null;
                     if (bolas.get(i).getAncho() >= 40) {
                         bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
@@ -307,8 +337,20 @@ public class PantallaJuego implements Pantalla {
         }
     }
 
-    private void cambiarNivel(int nivel) {
+    private void respawnear() {
+        // Poner al player en el centro
+        player.playerDerecha();
+        player.setPosX((panelJuego.getWidth() / 2) - (player.getAncho() / 2));
+        cambiarNivel(nivel);
+    }
 
+    private void cambiarNivel(int nivel) {
+        arpon = null;
+        bolas.clear();
+        bloques.clear();
+        if (nivel == 1) {
+            cargarNivelUno();
+        }
     }
 
     private void actualizarPuntos(int ancho) {
@@ -353,8 +395,11 @@ public class PantallaJuego implements Pantalla {
     }
 
     public void cargarNivelUno() {
+        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 400, INICIO_BOLA, VELOCIDAD_BOLAS,
+                VELOCIDAD_BOLAS));
+        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 800, INICIO_BOLA, VELOCIDAD_BOLAS,
+                VELOCIDAD_BOLAS));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 300));
-
     }
 }
