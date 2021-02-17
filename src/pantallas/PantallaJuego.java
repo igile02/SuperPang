@@ -79,7 +79,7 @@ public class PantallaJuego implements Pantalla {
         bloques = new ArrayList<Sprite>();
         nivel = 1;
 
-        tiempo = "0";
+        tiempo = "100";
 
         puntos = 0;
 
@@ -115,58 +115,59 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void pintarPantalla(Graphics g) {
+        rellenarFondo(g);
+
+        g.setColor(Color.YELLOW);
+        g.setFont(pixel.deriveFont(Font.BOLD, 50));
+        g.drawString("TIME " + tiempo, 600, 830);
+
+        g.setFont(pixel);
+        g.drawString("NIVEL " + nivel, 730, 860);
+
+        g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
+
+        g.setColor(Color.YELLOW);
+        g.drawString("VIDAS", 30, 810);
+        if (vidasActuales == 3) {
+            g.drawImage(vidas, 10, 830, null);
+            g.drawImage(vidas, 50, 830, null);
+            g.drawImage(vidas, 90, 830, null);
+        } else if (vidasActuales == 2) {
+            g.drawImage(vidas, 10, 830, null);
+            g.drawImage(vidas, 50, 830, null);
+        } else if (vidasActuales == 1) {
+            g.drawImage(vidas, 10, 830, null);
+        }
+
+        // TENER EN CUENTA SPRITES!!!
+        for (int i = 0; i < bolas.size(); i++) {
+            bolas.get(i).estanpar(g);
+        }
+
+        // Si el proyectis es distinto de null y no se sale de la pantalla lo pintamos
+        if (arpon != null) {
+            if (arpon.getAlto() > 740) {
+                arpon = null;
+            } else {
+                arpon.estanpar(g);
+            }
+        }
+
+        // Si la nave es distnto de null la pintamos
+        if (player != null) {
+            player.estanpar(g);
+        }
+
+        for (int i = 0; i < bloques.size(); i++) {
+            bloques.get(i).estanpar(g);
+        }
+
         if (esDescanso) {
             g.setColor(Color.YELLOW);
             g.setFont(pixel.deriveFont(Font.BOLD, 50));
             g.drawString("STAGE COMPLETE", 400, 430);
-        } else {
-            rellenarFondo(g);
-
-            g.setColor(Color.YELLOW);
-            g.setFont(pixel.deriveFont(Font.BOLD, 50));
-            g.drawString("TIME " + tiempo, 600, 830);
-
-            g.setFont(pixel);
-            g.drawString("NIVEL " + nivel, 730, 860);
-
-            g.drawString("PUNTUACION: " + String.format("%06d", puntos), 1100, 810);
-
-            g.setColor(Color.YELLOW);
-            g.drawString("VIDAS", 30, 810);
-            if (vidasActuales == 3) {
-                g.drawImage(vidas, 10, 830, null);
-                g.drawImage(vidas, 50, 830, null);
-                g.drawImage(vidas, 90, 830, null);
-            } else if (vidasActuales == 2) {
-                g.drawImage(vidas, 10, 830, null);
-                g.drawImage(vidas, 50, 830, null);
-            } else if (vidasActuales == 1) {
-                g.drawImage(vidas, 10, 830, null);
-            }
-
-            // TENER EN CUENTA SPRITES!!!
-            for (int i = 0; i < bolas.size(); i++) {
-                bolas.get(i).estanpar(g);
-            }
-
-            // Si el proyectis es distinto de null y no se sale de la pantalla lo pintamos
-            if (arpon != null) {
-                if (arpon.getAlto() > 740) {
-                    arpon = null;
-                } else {
-                    arpon.estanpar(g);
-                }
-            }
-
-            // Si la nave es distnto de null la pintamos
-            if (player != null) {
-                player.estanpar(g);
-            }
-
-            for (int i = 0; i < bloques.size(); i++) {
-                bloques.get(i).estanpar(g);
-            }
         }
+
     }
 
     /**
@@ -194,11 +195,15 @@ public class PantallaJuego implements Pantalla {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            tiempo = "100";
+            tiempoOriginal = System.nanoTime();
             cambiarNivel(nivel);
             esDescanso = false;
             bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 500, 500));
         } else {
             if (bolas.size() == 0) {
+                player.animacionGanar();
                 esDescanso = true;
                 nivel++;
             } else {
@@ -215,7 +220,7 @@ public class PantallaJuego implements Pantalla {
     public void actualizarTiempo() {
         double seconds = (tiempoTranscurrido / 1e+9);
         df = new DecimalFormat("000");
-        tiempo = df.format(seconds);
+        tiempo = df.format(100 - seconds);
     }
 
     /**
@@ -348,6 +353,8 @@ public class PantallaJuego implements Pantalla {
         arpon = null;
         bolas.clear();
         bloques.clear();
+        player.playerDerecha();
+        player.setPosX((panelJuego.getWidth() / 2) - (player.getAncho() / 2));
         if (nivel == 1) {
             cargarNivelUno();
         }
@@ -373,16 +380,16 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void pulsarTeclado(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_A) {
-            player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
-        }
+        if (player != null && !esDescanso) {
+            if (e.getKeyCode() == KeyEvent.VK_A) {
+                player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
+            }
 
-        if (e.getKeyCode() == KeyEvent.VK_D) {
-            player.moverSpriteDerecha(panelJuego.getWidth() - 30);
-        }
+            if (e.getKeyCode() == KeyEvent.VK_D) {
+                player.moverSpriteDerecha(panelJuego.getWidth() - 30);
+            }
 
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            if (player != null) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 if (arpon == null) {
                     player.animacionDisparar();
                     arpon = new Sprite("Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
@@ -391,12 +398,12 @@ public class PantallaJuego implements Pantalla {
                 }
             }
         }
-
     }
 
     public void cargarNivelUno() {
-        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 400, INICIO_BOLA, VELOCIDAD_BOLAS,
-                VELOCIDAD_BOLAS));
+        // bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 400,
+        // INICIO_BOLA, VELOCIDAD_BOLAS,
+        // VELOCIDAD_BOLAS));
         bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 800, INICIO_BOLA, VELOCIDAD_BOLAS,
                 VELOCIDAD_BOLAS));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
