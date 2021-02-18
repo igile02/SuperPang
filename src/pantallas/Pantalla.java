@@ -34,6 +34,8 @@ public interface Pantalla {
 
     public void pulsarTeclado(KeyEvent e);
 
+    public void soltarTeclado(KeyEvent e);
+
     /**
      * Método que se llevará a cabo cuando se redimensione la pantalla.
      */

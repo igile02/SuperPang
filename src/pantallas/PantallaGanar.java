@@ -102,5 +102,11 @@ public class PantallaGanar implements Pantalla {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public void soltarTeclado(KeyEvent e) {
+        // TODO Auto-generated method stub
+
+    }
     
 }

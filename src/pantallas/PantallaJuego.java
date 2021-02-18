@@ -35,6 +35,7 @@ public class PantallaJuego implements Pantalla {
     // Constantes de nuestro player
     private final static int ANCHO_PLAYER = 100;
     private final static int ALTO_PLAYER = 100;
+    private final static int VELOCIDAD_PLAYER = 20;
     private final static int MAX_VIDAS = 3;
 
     // Constantes arpon
@@ -61,6 +62,8 @@ public class PantallaJuego implements Pantalla {
     private boolean esFinal;
     private boolean esDescanso;
     private DecimalFormat df;
+    private boolean moverSpriteIzquierda;
+    private boolean moverSpriteDerecha;
     private int nivel;
     private Font pixel;
     private int vidasActuales;
@@ -239,7 +242,7 @@ public class PantallaJuego implements Pantalla {
     public void pulsarRaton(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
             player = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
-                    panelJuego.getHeight() - 125 - ALTO_PLAYER, 50);
+                    panelJuego.getHeight() - 125 - ALTO_PLAYER, VELOCIDAD_PLAYER);
         }
 
         if (SwingUtilities.isLeftMouseButton(e)) {
@@ -268,6 +271,14 @@ public class PantallaJuego implements Pantalla {
         // El disparo se va moviendo
         if (arpon != null) {
             arpon.disparar();
+        }
+
+        if (moverSpriteDerecha) {
+            player.moverSpriteDerecha(panelJuego.getWidth() - 30);
+        }
+
+        if (moverSpriteIzquierda) {
+            player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
         }
     }
 
@@ -307,7 +318,9 @@ public class PantallaJuego implements Pantalla {
             // Si los asteriodes llegan a 0 paramos el hilo
             if (arpon != null) {
                 if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
+
                     bolas.get(i).explotar();
+                    
                     panelJuego.repaint();
                     Toolkit.getDefaultToolkit().sync();
 
@@ -382,11 +395,11 @@ public class PantallaJuego implements Pantalla {
     public void pulsarTeclado(KeyEvent e) {
         if (player != null && !esDescanso) {
             if (e.getKeyCode() == KeyEvent.VK_A) {
-                player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
+                moverSpriteIzquierda = true;
             }
 
             if (e.getKeyCode() == KeyEvent.VK_D) {
-                player.moverSpriteDerecha(panelJuego.getWidth() - 30);
+                moverSpriteDerecha = true;
             }
 
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -408,5 +421,18 @@ public class PantallaJuego implements Pantalla {
                 VELOCIDAD_BOLAS));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 300));
+    }
+
+    @Override
+    public void soltarTeclado(KeyEvent e) {
+        if (player != null) {
+            if (e.getKeyCode() == KeyEvent.VK_A) {
+                moverSpriteIzquierda = false;
+            }
+
+            if (e.getKeyCode() == KeyEvent.VK_D) {
+                moverSpriteDerecha = false;
+            }
+        }
     }
 }

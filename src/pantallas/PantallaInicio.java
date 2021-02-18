@@ -82,4 +82,10 @@ public class PantallaInicio implements Pantalla {
 
     }
 
+    @Override
+    public void soltarTeclado(KeyEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
 }
