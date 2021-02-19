@@ -23,15 +23,38 @@ import java.awt.Toolkit;
 
 public class PantallaJuego implements Pantalla {
 
+    // Distintos Fondos
+    private final static String[] FONDOS = { "Imagenes/mexico.png", "Imagenes/china.png", "Imagenes/arabia.png",
+            "Imagenes/playa.png", "Imagenes/japon.png" };
+
     // Constantes de las bolas
     private final static int LADO_BOLA = 200;
     private final static int VELOCIDAD_BOLAS = 4;
+    private final static int POSY_BOLAS = 20;
     private final static int PUNTUACION_BOLAS_GRANDES = 200;
     private final static int PUNTUACION_BOLAS_MEDIANAS = 400;
     private final static int PUNTUACION_BOLAS_PEQUENIAS = 800;
     private final static int PUNTUACION_BOLAS_MINIS = 1600;
-    private final static int MAX_BOLAS = 5;
-    private final static int MIN_BOLAS = 2;
+    private final static int MAX_BOLAS = 4;
+    private final static int MIN_BOLAS = 1;
+    private final static String[] COLOR_BOLA = { "Imagenes/bolaRoja.png", "Imagenes/bolaAzul.png",
+            "Imagenes/bolaVerde.png" };
+    private final static String[] COLOR_EXP = { "Imagenes/explosionRoja.png", "Imagenes/explosionAzul.png",
+            "Imagenes/explosionVerde.png" };
+
+    // Colores de los bloques
+    private final static String[] COLOR_BLOQUE = { "Imagenes/bloqueAmarillo.png", "Imagenes/bloqueAzul.png",
+            "Imagenes/bloqueRojo.png" };
+    private final static int POSX_UNO = 200;
+    private final static int POSX_DOS = 500;
+    private final static int POSX_TRES = 800;
+    private final static int POSX_CUATRO = 1100;
+    private final static int POSY_UNO_BLOQUES = 300;
+    private final static int POSY_DOS_BLOQUES = 400;
+    private final static int MIN_BLOQUES = 2;
+    private final static int MAX_BLOQUES = 4;
+    private final static int ALTO_BLOQUE = 30;
+    private final static int ANCHO_BLOQUE = 150;
 
     // Constantes de nuestro player
     private final static int ANCHO_PLAYER = 100;
@@ -62,7 +85,6 @@ public class PantallaJuego implements Pantalla {
     private int puntos;
     private double tiempoTranscurrido;
     private double tiempoOriginal;
-    private double tiempoActual;
     private boolean esFinal;
     private boolean esDescanso;
     private DecimalFormat df;
@@ -71,6 +93,13 @@ public class PantallaJuego implements Pantalla {
     private int nivel;
     private Font pixel;
     private int vidasActuales;
+    private String colorBloque;
+    private String colorBola;
+    private int aleBola;
+    private int numBolas;
+    private int numBloques;
+    private int aleFondo;
+    private int aleBloque;
 
     public PantallaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -84,6 +113,8 @@ public class PantallaJuego implements Pantalla {
         tiempoOriginal = System.nanoTime();
         bolas = new ArrayList<Sprite>();
         bloques = new ArrayList<Sprite>();
+        posicionesBloquesX = new ArrayList<Integer>();
+        posicionesBloquesY = new ArrayList<Integer>();
         nivel = 1;
 
         tiempo = "100";
@@ -92,11 +123,8 @@ public class PantallaJuego implements Pantalla {
 
         arpon = null;
 
-        try {
-            fondo = ImageIO.read(new File("Imagenes/mexico.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        player = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
+                panelJuego.getHeight() - 125 - ALTO_PLAYER, VELOCIDAD_PLAYER);
 
         try {
             vida = ImageIO.read(new File("Imagenes/live.png"));
@@ -105,8 +133,8 @@ public class PantallaJuego implements Pantalla {
         }
         vidas = vida.getScaledInstance(40, 40, Image.SCALE_SMOOTH);
 
+        cargarNivel();
         redimensionarFondo();
-        cargarNivelUno();
     }
 
     private void cargarFuente() {
@@ -204,11 +232,8 @@ public class PantallaJuego implements Pantalla {
                     e.printStackTrace();
                 }
 
-                tiempo = "100";
-                tiempoOriginal = System.nanoTime();
-                cambiarNivel(nivel);
+                cargarNivel();
                 esDescanso = false;
-                bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 500, 500));
             } else {
                 if (bolas.size() == 0) {
                     player.animacionGanar();
@@ -220,8 +245,11 @@ public class PantallaJuego implements Pantalla {
                 }
             }
             contarTiempo();
+        } else if (tiempo.equals("000") && vidasActuales > 0) {
+            perderVida();
+            respawnear();
         } else {
-            //CAMBIAR A GAME OVER
+            // game over
         }
     }
 
@@ -248,14 +276,6 @@ public class PantallaJuego implements Pantalla {
 
     @Override
     public void pulsarRaton(MouseEvent e) {
-        if (SwingUtilities.isRightMouseButton(e)) {
-            player = new Sprite("Imagenes/playerDerecha.png", ANCHO_PLAYER, ALTO_PLAYER, 25,
-                    panelJuego.getHeight() - 125 - ALTO_PLAYER, VELOCIDAD_PLAYER);
-        }
-
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, e.getX(), e.getY()));
-        }
     }
 
     @Override
@@ -303,8 +323,8 @@ public class PantallaJuego implements Pantalla {
             if (player != null) {
                 if (vidasActuales > 0) {
                     if (bolas.get(i).colisionCuadradoCirculo(player)) {
-                        perderVida();
-                        respawnear();
+                        // perderVida();
+                        // respawnear();
                     }
                 } else {
                     // Cambiar a gameOver
@@ -315,7 +335,7 @@ public class PantallaJuego implements Pantalla {
             if (arpon != null) {
                 if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
 
-                    bolas.get(i).explotar();
+                    bolas.get(i).explotar(COLOR_EXP[aleBola]);
 
                     panelJuego.repaint();
                     Toolkit.getDefaultToolkit().sync();
@@ -328,12 +348,11 @@ public class PantallaJuego implements Pantalla {
 
                     arpon = null;
                     if (bolas.get(i).getAncho() >= 40) {
-                        bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
-                                bolas.get(i).getAlto() / 2, bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(),
-                                VELOCIDAD_BOLAS, -VELOCIDAD_BOLAS));
-                        bolas.add(new Sprite("Imagenes/bolaRoja.png", bolas.get(i).getAncho() / 2,
-                                bolas.get(i).getAlto() / 2, bolas.get(i).getPosX() + 60, bolas.get(i).getPosY(),
-                                VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+                        bolas.add(new Sprite(colorBola, bolas.get(i).getAncho() / 2, bolas.get(i).getAlto() / 2,
+                                bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS,
+                                -VELOCIDAD_BOLAS));
+                        bolas.add(new Sprite(colorBola, bolas.get(i).getAncho() / 2, bolas.get(i).getAlto() / 2,
+                                bolas.get(i).getPosX() + 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
                     }
                     actualizarPuntos(bolas.get(i).getAncho());
                     bolas.remove(i);
@@ -343,9 +362,11 @@ public class PantallaJuego implements Pantalla {
 
         if (bloques.size() > 0 && arpon != null) {
             for (int j = 0; j < bloques.size(); j++) {
-                if (bloques.get(j).colision(arpon)) {
-                    bloques.remove(j);
-                    arpon = null;
+                if (arpon != null) {
+                    if (bloques.get(j).colision(arpon)) {
+                        bloques.remove(j);
+                        arpon = null;
+                    }
                 }
             }
         }
@@ -355,17 +376,64 @@ public class PantallaJuego implements Pantalla {
         // Poner al player en el centro
         player.playerDerecha();
         player.setPosX((panelJuego.getWidth() / 2) - (player.getAncho() / 2));
-        cambiarNivel(nivel);
+        recargarNivel();
     }
 
-    private void cambiarNivel(int nivel) {
+    private void recargarNivel() {
+        colorBloque = COLOR_BLOQUE[aleBloque];
+        colorBola = COLOR_BOLA[aleBola];
+        cargarFondo(FONDOS[aleFondo]);
         arpon = null;
         bolas.clear();
         bloques.clear();
         player.playerDerecha();
         player.setPosX((panelJuego.getWidth() / 2) - (player.getAncho() / 2));
+
+        renovarTiempo();
+
+        cargarNivelNuevo();
+    }
+
+    private void renovarTiempo() {
+        tiempo = "100";
+        tiempoOriginal = System.nanoTime();
+    }
+
+    private void cargarNivel() {
+        aleBola = aleatorio(0, 3);
+        aleBloque = aleatorio(0, 3);
+        aleFondo = aleatorio(0, 5);
+        numBolas = aleatorio(MIN_BOLAS, MAX_BOLAS + 1);
+        numBloques = aleatorio(MIN_BLOQUES, MAX_BLOQUES + 1);
+        colorBloque = COLOR_BLOQUE[aleBloque];
+        colorBola = COLOR_BOLA[aleBola];
+        cargarFondo(FONDOS[aleFondo]);
+        arpon = null;
+        bolas.clear();
+        bloques.clear();
+        player.playerDerecha();
+        player.setPosX((panelJuego.getWidth() / 2) - (player.getAncho() / 2));
+
+        renovarTiempo();
+
         if (nivel == 1) {
             cargarNivelUno();
+        } else {
+            cargarNivelNuevo();
+        }
+    }
+
+    private void cargarNivelUno() {
+        bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+        bloques.add(new Sprite(colorBloque, ANCHO_BLOQUE, ALTO_BLOQUE, POSX_DOS, POSY_UNO_BLOQUES));
+        bloques.add(new Sprite(colorBloque, ANCHO_BLOQUE, ALTO_BLOQUE, POSX_TRES, POSY_UNO_BLOQUES));
+    }
+
+    private void cargarFondo(String ruta) {
+        try {
+            fondo = ImageIO.read(new File(ruta));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -374,7 +442,6 @@ public class PantallaJuego implements Pantalla {
             case 200:
                 puntos += PUNTUACION_BOLAS_GRANDES;
                 break;
-
             case 100:
                 puntos += PUNTUACION_BOLAS_MEDIANAS;
                 break;
@@ -409,14 +476,9 @@ public class PantallaJuego implements Pantalla {
         }
     }
 
-    public void cargarNivelUno() {
-        // bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 400,
-        // INICIO_BOLA, VELOCIDAD_BOLAS,
-        // VELOCIDAD_BOLAS));
-        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 800, 20, VELOCIDAD_BOLAS,
-                VELOCIDAD_BOLAS));
-        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
-        bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 300));
+    public void cargarNivelNuevo() {
+        cargarBolas();
+        cargarBloques();
     }
 
     @Override
@@ -446,7 +508,72 @@ public class PantallaJuego implements Pantalla {
         }
     }
 
-    public int aleatorio(int max, int min) {
-        return (int) (Math.random() * (max - min + 1) + max);
+    public int aleatorio(int min, int max) {
+        return (int) (Math.random() * (max - min) + min);
+    }
+
+    public void cargarBloques() {
+        posicionesBloquesX.clear();
+        cargarArrayPosicioneX();
+        posicionesBloquesY.clear();
+        cargarArrayPosicionesY();
+
+        for (int i = 0; i < numBloques; i++) {
+            int aleX = aleatorio(0, posicionesBloquesX.size());
+            int aleY = aleatorio(0, posicionesBloquesY.size());
+
+            bloques.add(new Sprite(colorBloque, ANCHO_BLOQUE, ALTO_BLOQUE, posicionesBloquesX.get(aleX),
+                    posicionesBloquesY.get(aleY)));
+            posicionesBloquesX.remove(aleX);
+            posicionesBloquesY.remove(aleY);
+        }
+    }
+
+    public void cargarBolas() {
+        switch (numBolas) {
+            case 1:
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                break;
+            case 2:
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                break;
+            case 3:
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_UNO, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                break;
+            case 4:
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_UNO, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_CUATRO, POSY_BOLAS, VELOCIDAD_BOLAS,
+                        VELOCIDAD_BOLAS));
+                break;
+        }
+
+    }
+
+    public void cargarArrayPosicioneX() {
+        posicionesBloquesX.add(POSX_UNO);
+        posicionesBloquesX.add(POSX_DOS);
+        posicionesBloquesX.add(POSX_TRES);
+        posicionesBloquesX.add(POSX_CUATRO);
+    }
+
+    public void cargarArrayPosicionesY() {
+        for (int i = 0; i < 3; i++) {
+            posicionesBloquesY.add(POSY_UNO_BLOQUES);
+        }
+        posicionesBloquesY.add(POSY_DOS_BLOQUES);
     }
 }
