@@ -194,29 +194,33 @@ public class PantallaJuego implements Pantalla {
             e.printStackTrace();
         }
 
-        if (esDescanso) {
-            try {
-                Thread.sleep(3 * 1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if (!tiempo.equals("000")) {
+            if (esDescanso) {
+                try {
+                    Thread.sleep(3 * 1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-            tiempo = "100";
-            tiempoOriginal = System.nanoTime();
-            cambiarNivel(nivel);
-            esDescanso = false;
-            bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 500, 500));
-        } else {
-            if (bolas.size() == 0) {
-                player.animacionGanar();
-                esDescanso = true;
-                nivel++;
+                tiempo = "100";
+                tiempoOriginal = System.nanoTime();
+                cambiarNivel(nivel);
+                esDescanso = false;
+                bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 500, 500));
             } else {
-                moverSprites();
-                comprobarColisiones();
+                if (bolas.size() == 0) {
+                    player.animacionGanar();
+                    esDescanso = true;
+                    nivel++;
+                } else {
+                    moverSprites();
+                    comprobarColisiones();
+                }
             }
+            contarTiempo();
+        } else {
+            //CAMBIAR A GAME OVER
         }
-        contarTiempo();
     }
 
     /**
@@ -288,13 +292,6 @@ public class PantallaJuego implements Pantalla {
         // Comprobamos colisiones
         for (int i = 0; i < bolas.size(); i++) {
 
-            if (bloques.size() > 0) {
-                for (int z = 0; z < bloques.size(); z++) {
-                    bolas.get(i).colisionPorArribaAbajo(bloques.get(z));
-                    bolas.get(i).colisionPorLados(bloques.get(z));
-                }
-            }
-
             if (player != null) {
                 if (vidasActuales > 0) {
                     if (bolas.get(i).colisionCuadradoCirculo(player)) {
@@ -303,6 +300,12 @@ public class PantallaJuego implements Pantalla {
                     }
                 } else {
                     // Cambiar a gameOver
+                }
+            }
+
+            if (bloques.size() > 0) {
+                for (int z = 0; z < bloques.size(); z++) {
+                    bolas.get(i).colisionLadosUpDown(bloques.get(z));
                 }
             }
 

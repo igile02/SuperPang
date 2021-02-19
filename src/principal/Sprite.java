@@ -289,7 +289,7 @@ public class Sprite {
         return colision;
     }
 
-    public void colisionPorArribaAbajo(Sprite cuadrado) {
+    public void colisionLadosUpDown(Sprite cuadrado) {
         int yCuadrado = cuadrado.getPosY();
 
         int cuadradoAlto = yCuadrado + cuadrado.getAlto();
@@ -307,23 +307,15 @@ public class Sprite {
                 && (((posX + ancho) > xCuadrado) && (posX < cuadradoAncho))) {
             velY = Math.abs(velY);
         }
-    }
-
-    public void colisionPorLados(Sprite cuadrado) {
-        int yCuadrado = cuadrado.getPosY();
-
-        int cuadradoAlto = yCuadrado + cuadrado.getAlto();
-        int xCuadrado = cuadrado.getPosX();
-        int cuadradoAncho = xCuadrado + cuadrado.getAncho();
 
         // Por la derecha
-        if (((posX < cuadradoAncho) && (posX > xCuadrado))
+        if (((posX < cuadradoAncho) && (posX > cuadradoAncho-10))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = Math.abs(velX);
         }
 
         // Por la izquierda
-        if ((((posX + ancho) > xCuadrado) && (posX < xCuadrado))
+        if ((((posX + ancho) > xCuadrado) && ((posX+ancho) < xCuadrado+10))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = -Math.abs(velX);
         }
