@@ -30,6 +30,8 @@ public class PantallaJuego implements Pantalla {
     private final static int PUNTUACION_BOLAS_MEDIANAS = 400;
     private final static int PUNTUACION_BOLAS_PEQUENIAS = 800;
     private final static int PUNTUACION_BOLAS_MINIS = 1600;
+    private final static int MAX_BOLAS = 5;
+    private final static int MIN_BOLAS = 2;
 
     // Constantes de nuestro player
     private final static int ANCHO_PLAYER = 100;
@@ -292,6 +294,12 @@ public class PantallaJuego implements Pantalla {
         // Comprobamos colisiones
         for (int i = 0; i < bolas.size(); i++) {
 
+            if (bloques.size() > 0) {
+                for (int z = 0; z < bloques.size(); z++) {
+                    bolas.get(i).colisionLadosUpDown(bloques.get(z));
+                }
+            }
+
             if (player != null) {
                 if (vidasActuales > 0) {
                     if (bolas.get(i).colisionCuadradoCirculo(player)) {
@@ -300,12 +308,6 @@ public class PantallaJuego implements Pantalla {
                     }
                 } else {
                     // Cambiar a gameOver
-                }
-            }
-
-            if (bloques.size() > 0) {
-                for (int z = 0; z < bloques.size(); z++) {
-                    bolas.get(i).colisionLadosUpDown(bloques.get(z));
                 }
             }
 
@@ -442,5 +444,9 @@ public class PantallaJuego implements Pantalla {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public int aleatorio(int max, int min) {
+        return (int) (Math.random() * (max - min + 1) + max);
     }
 }
