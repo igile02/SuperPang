@@ -89,15 +89,6 @@ public class PanelJuego extends JPanel
 
     }
 
-    /**
-     * Listener que rescala la imagen cuando la ventana se haga mas grande o mas
-     * pequeña
-     */
-    @Override
-    public void componentResized(ComponentEvent e) {
-        pantalla.redimensionarPantalla(e);
-    }
-
     @Override
     public void componentMoved(ComponentEvent e) {
         // TODO Auto-generated method stub
@@ -120,14 +111,6 @@ public class PanelJuego extends JPanel
     public void mouseDragged(MouseEvent e) {
         // TODO Auto-generated method stub
 
-    }
-
-    /**
-     * Método que hace que la nave siga el raton
-     */
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        pantalla.moverRaton(e);
     }
 
     public void cambiarPantalla(Pantalla pantallaNueva) {

@@ -10,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import javax.swing.SwingUtilities;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +64,7 @@ public class PantallaJuego implements Pantalla {
     // Constantes arpon
     private final static int ANCHO_ARPON = 30;
     private final static int ALTO_ARPON = 60;
-    private static final int VELOCIDADY_ARPON = 30;
+    private static final int VELOCIDADY_ARPON = 25;
 
     private ArrayList<Integer> posicionesBloquesX;
     private ArrayList<Integer> posicionesBloquesY;
@@ -100,6 +99,7 @@ public class PantallaJuego implements Pantalla {
     private int numBloques;
     private int aleFondo;
     private int aleBloque;
+    private Image carga;
 
     public PantallaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -132,6 +132,13 @@ public class PantallaJuego implements Pantalla {
             e.printStackTrace();
         }
         vidas = vida.getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+
+        try {
+            carga = ImageIO.read(new File("Imagenes/carga.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        carga = carga.getScaledInstance(panelJuego.getWidth(), panelJuego.getHeight() - 100, Image.SCALE_SMOOTH);
 
         cargarNivel();
         redimensionarFondo();
@@ -198,6 +205,7 @@ public class PantallaJuego implements Pantalla {
         }
 
         if (esDescanso) {
+            g.drawImage(carga, 0, 0, null);
             g.setColor(Color.YELLOW);
             g.setFont(pixel.deriveFont(Font.BOLD, 50));
             g.drawString("STAGE COMPLETE", 400, 430);
@@ -269,18 +277,9 @@ public class PantallaJuego implements Pantalla {
         tiempoTranscurrido = ((System.nanoTime() - tiempoOriginal));
         actualizarTiempo();
     }
-
-    @Override
-    public void moverRaton(MouseEvent e) {
-    }
-
+    
     @Override
     public void pulsarRaton(MouseEvent e) {
-    }
-
-    @Override
-    public void redimensionarPantalla(ComponentEvent e) {
-        redimensionarFondo();
     }
 
     /**

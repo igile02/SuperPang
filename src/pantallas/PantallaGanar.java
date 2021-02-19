@@ -75,19 +75,8 @@ public class PantallaGanar implements Pantalla {
     }
 
     @Override
-    public void moverRaton(MouseEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void pulsarRaton(MouseEvent e) {
         panelJuego.cambiarPantalla(new PantallaJuego(panelJuego));
-    }
-
-    @Override
-    public void redimensionarPantalla(ComponentEvent e) {
-        redimensionarFondo();
     }
 
     /**
