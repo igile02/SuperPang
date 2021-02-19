@@ -2,8 +2,6 @@ package pantallas;
 
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;

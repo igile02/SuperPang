@@ -141,5 +141,17 @@ public class PanelJuego extends JPanel
         pantalla.soltarTeclado(e);
     }
 
+    @Override
+    public void componentResized(ComponentEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
 
 }
