@@ -306,7 +306,6 @@ public class Sprite {
         if ((((posY) < cuadradoAlto) && (posY > yCuadrado))
                 && (((posX + ancho) > xCuadrado) && (posX < cuadradoAncho))) {
             velY = Math.abs(velY);
-            velX = velX * -1;
         }
     }
 

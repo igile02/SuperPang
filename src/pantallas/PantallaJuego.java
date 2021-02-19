@@ -25,7 +25,6 @@ public class PantallaJuego implements Pantalla {
 
     // Constantes de las bolas
     private final static int LADO_BOLA = 200;
-    private final static int INICIO_BOLA = 20;
     private final static int VELOCIDAD_BOLAS = 4;
     private final static int PUNTUACION_BOLAS_GRANDES = 200;
     private final static int PUNTUACION_BOLAS_MEDIANAS = 400;
@@ -42,6 +41,9 @@ public class PantallaJuego implements Pantalla {
     private final static int ANCHO_ARPON = 30;
     private final static int ALTO_ARPON = 60;
     private static final int VELOCIDADY_ARPON = 30;
+
+    private ArrayList<Integer> posicionesBloquesX;
+    private ArrayList<Integer> posicionesBloquesY;
 
     // Referencia panelJuego
     private PanelJuego panelJuego;
@@ -296,18 +298,7 @@ public class PantallaJuego implements Pantalla {
             if (player != null) {
                 if (vidasActuales > 0) {
                     if (bolas.get(i).colisionCuadradoCirculo(player)) {
-                        vidasActuales--;
-                        player.animacionMorir();
-
-                        panelJuego.repaint();
-                        Toolkit.getDefaultToolkit().sync();
-
-                        try {
-                            Thread.sleep(3 * 1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
+                        perderVida();
                         respawnear();
                     }
                 } else {
@@ -320,7 +311,7 @@ public class PantallaJuego implements Pantalla {
                 if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
 
                     bolas.get(i).explotar();
-                    
+
                     panelJuego.repaint();
                     Toolkit.getDefaultToolkit().sync();
 
@@ -417,7 +408,7 @@ public class PantallaJuego implements Pantalla {
         // bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 400,
         // INICIO_BOLA, VELOCIDAD_BOLAS,
         // VELOCIDAD_BOLAS));
-        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 800, INICIO_BOLA, VELOCIDAD_BOLAS,
+        bolas.add(new Sprite("Imagenes/bolaRoja.png", LADO_BOLA, LADO_BOLA, 800, 20, VELOCIDAD_BOLAS,
                 VELOCIDAD_BOLAS));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 400, 300));
         bloques.add(new Sprite("Imagenes/bloqueAzul.png", 150, 30, 900, 300));
@@ -433,6 +424,20 @@ public class PantallaJuego implements Pantalla {
             if (e.getKeyCode() == KeyEvent.VK_D) {
                 moverSpriteDerecha = false;
             }
+        }
+    }
+
+    public void perderVida() {
+        vidasActuales--;
+        player.animacionMorir();
+
+        panelJuego.repaint();
+        Toolkit.getDefaultToolkit().sync();
+
+        try {
+            Thread.sleep(3 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
