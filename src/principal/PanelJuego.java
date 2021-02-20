@@ -2,8 +2,6 @@ package principal;
 
 import java.awt.Graphics;
 import java.awt.Toolkit;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,8 +16,7 @@ import pantallas.PantallaInicio;
  * 
  * @author Iván Gil Esteban
  */
-public class PanelJuego extends JPanel
-        implements Runnable, MouseMotionListener, ComponentListener, MouseListener, KeyListener {
+public class PanelJuego extends JPanel implements Runnable, MouseMotionListener, MouseListener, KeyListener {
 
     /**
      *
@@ -35,7 +32,6 @@ public class PanelJuego extends JPanel
         pantalla = new PantallaInicio(this);
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
-        this.addComponentListener(this);
         this.addKeyListener(this);
         new Thread(this).start();
     }
@@ -47,6 +43,10 @@ public class PanelJuego extends JPanel
 
     }
 
+    /**
+     * Método que se ejcutara todo el tiempo y llama al metodo ejecutarFrame de
+     * nuestra pantalla para que realize sus distintas acciones
+     */
     @Override
     public void run() {
         while (true) {
@@ -64,7 +64,7 @@ public class PanelJuego extends JPanel
     }
 
     /**
-     * Listener que implementa el disparar y poner la nave
+     * Listener que implementa las acciones al pulsar el ratón de nuestra pantalla
      */
     @Override
     public void mousePressed(MouseEvent e) {
@@ -90,61 +90,41 @@ public class PanelJuego extends JPanel
     }
 
     @Override
-    public void componentMoved(ComponentEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void componentShown(ComponentEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void componentHidden(ComponentEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void mouseDragged(MouseEvent e) {
         // TODO Auto-generated method stub
 
     }
 
+    /**
+     * Método para cambiar la pantalla actual, le pasamos la pantalla nueva por
+     * parametros
+     * 
+     * @param pantallaNueva pantallaNueva que recibe
+     */
     public void cambiarPantalla(Pantalla pantallaNueva) {
         pantalla = pantallaNueva;
-    }
-
-    public Pantalla getPantalla() {
-        return pantalla;
-    }
-
-    public void setPantalla(Pantalla pantalla) {
-        this.pantalla = pantalla;
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
         // TODO Auto-generated method stub
-
     }
 
+    /**
+     * Método que realizara la acciones de nuestra pantalla al pulsar el teclado
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         pantalla.pulsarTeclado(e);
     }
 
+    /**
+     * Método que realiza las accionesque implementa nuestra pantalla al soltar el
+     * teclado
+     */
     @Override
     public void keyReleased(KeyEvent e) {
         pantalla.soltarTeclado(e);
-    }
-
-    @Override
-    public void componentResized(ComponentEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -152,6 +132,5 @@ public class PanelJuego extends JPanel
         // TODO Auto-generated method stub
 
     }
-
 
 }

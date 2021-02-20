@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -66,6 +65,9 @@ public class PantallaJuego implements Pantalla {
     private final static int ALTO_ARPON = 60;
     private static final int VELOCIDADY_ARPON = 25;
 
+    //Constante tiempo
+    private final static String MAX_TIEMPO = "100";
+
     private ArrayList<Integer> posicionesBloquesX;
     private ArrayList<Integer> posicionesBloquesY;
 
@@ -84,7 +86,6 @@ public class PantallaJuego implements Pantalla {
     private int puntos;
     private double tiempoTranscurrido;
     private double tiempoOriginal;
-    private boolean esFinal;
     private boolean esDescanso;
     private DecimalFormat df;
     private boolean moverSpriteIzquierda;
@@ -117,7 +118,7 @@ public class PantallaJuego implements Pantalla {
         posicionesBloquesY = new ArrayList<Integer>();
         nivel = 1;
 
-        tiempo = "100";
+        tiempo = MAX_TIEMPO;
 
         puntos = 0;
 
@@ -235,7 +236,7 @@ public class PantallaJuego implements Pantalla {
         if (!tiempo.equals("000")) {
             if (esDescanso) {
                 try {
-                    Thread.sleep(3 * 1000);
+                    Thread.sleep(2 * 1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -245,6 +246,14 @@ public class PantallaJuego implements Pantalla {
             } else {
                 if (bolas.size() == 0) {
                     player.animacionGanar();
+                    repintar();
+
+                    try {
+                        Thread.sleep(1 * 1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     esDescanso = true;
                     nivel++;
                 } else {
@@ -257,8 +266,14 @@ public class PantallaJuego implements Pantalla {
             perderVida();
             respawnear();
         } else {
-            // game over
+            panelJuego.cambiarPantalla(new PantallaPerder(panelJuego));
         }
+
+    }
+
+    private void repintar() {
+        panelJuego.repaint();
+        Toolkit.getDefaultToolkit().sync();
     }
 
     /**
@@ -277,7 +292,7 @@ public class PantallaJuego implements Pantalla {
         tiempoTranscurrido = ((System.nanoTime() - tiempoOriginal));
         actualizarTiempo();
     }
-    
+
     @Override
     public void pulsarRaton(MouseEvent e) {
     }
@@ -305,7 +320,7 @@ public class PantallaJuego implements Pantalla {
         }
 
         if (moverSpriteIzquierda) {
-            player.moverSpriteIzquierda(panelJuego.getWidth() - 30);
+            player.moverSpriteIzquierda(30);
         }
     }
 
@@ -320,13 +335,20 @@ public class PantallaJuego implements Pantalla {
             }
 
             if (player != null) {
-                if (vidasActuales > 0) {
-                    if (bolas.get(i).colisionCuadradoCirculo(player)) {
-                        // perderVida();
-                        // respawnear();
+                if (bolas.get(i).colisionCuadradoCirculo(player)) {
+                    if (vidasActuales > 0) {
+                        perderVida();
+                        respawnear();
+                    } else {
+                        player.animacionMorir();
+                        repintar();
+                        try {
+                            Thread.sleep(3 * 1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        panelJuego.cambiarPantalla(new PantallaPerder(panelJuego));
                     }
-                } else {
-                    // Cambiar a gameOver
                 }
             }
 
@@ -334,10 +356,9 @@ public class PantallaJuego implements Pantalla {
             if (arpon != null) {
                 if (bolas.get(i).colisionCuadradoCirculo(arpon)) {
 
-                    bolas.get(i).explotar(COLOR_EXP[aleBola]);
+                    bolas.get(i).explotar();
 
-                    panelJuego.repaint();
-                    Toolkit.getDefaultToolkit().sync();
+                    repintar();
 
                     try {
                         Thread.sleep(50);
@@ -348,10 +369,11 @@ public class PantallaJuego implements Pantalla {
                     arpon = null;
                     if (bolas.get(i).getAncho() >= 40) {
                         bolas.add(new Sprite(colorBola, bolas.get(i).getAncho() / 2, bolas.get(i).getAlto() / 2,
-                                bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS,
-                                -VELOCIDAD_BOLAS));
+                                bolas.get(i).getPosX() - 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS, -VELOCIDAD_BOLAS,
+                                COLOR_EXP[aleBola]));
                         bolas.add(new Sprite(colorBola, bolas.get(i).getAncho() / 2, bolas.get(i).getAlto() / 2,
-                                bolas.get(i).getPosX() + 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+                                bolas.get(i).getPosX() + 60, bolas.get(i).getPosY(), VELOCIDAD_BOLAS, VELOCIDAD_BOLAS,
+                                COLOR_EXP[aleBola]));
                     }
                     actualizarPuntos(bolas.get(i).getAncho());
                     bolas.remove(i);
@@ -394,7 +416,7 @@ public class PantallaJuego implements Pantalla {
     }
 
     private void renovarTiempo() {
-        tiempo = "100";
+        tiempo = MAX_TIEMPO;
         tiempoOriginal = System.nanoTime();
     }
 
@@ -423,7 +445,10 @@ public class PantallaJuego implements Pantalla {
     }
 
     private void cargarNivelUno() {
-        bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS, VELOCIDAD_BOLAS));
+        numBolas = 1;
+        numBloques = 2;
+        bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS, VELOCIDAD_BOLAS,
+                COLOR_EXP[aleBola]));
         bloques.add(new Sprite(colorBloque, ANCHO_BLOQUE, ALTO_BLOQUE, POSX_DOS, POSY_UNO_BLOQUES));
         bloques.add(new Sprite(colorBloque, ANCHO_BLOQUE, ALTO_BLOQUE, POSX_TRES, POSY_UNO_BLOQUES));
     }
@@ -467,9 +492,8 @@ public class PantallaJuego implements Pantalla {
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                 if (arpon == null) {
                     player.animacionDisparar();
-                    arpon = new Sprite("Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
-                            player.getPosX() + (player.getAncho() / 2 - ANCHO_ARPON / 2), player.getPosY() + 40,
-                            VELOCIDADY_ARPON, 0);
+                    arpon = new Sprite(VELOCIDADY_ARPON, "Imagenes/disparo.png", ANCHO_ARPON, ALTO_ARPON,
+                            player.getPosX() + (player.getAncho() / 2 - ANCHO_ARPON / 2), player.getPosY() + 40);
                 }
             }
         }
@@ -494,11 +518,12 @@ public class PantallaJuego implements Pantalla {
     }
 
     public void perderVida() {
-        vidasActuales--;
-        player.animacionMorir();
+        if (vidasActuales >= 0) {
+            vidasActuales--;
+            player.animacionMorir();
 
-        panelJuego.repaint();
-        Toolkit.getDefaultToolkit().sync();
+            repintar();
+        }
 
         try {
             Thread.sleep(3 * 1000);
@@ -532,31 +557,31 @@ public class PantallaJuego implements Pantalla {
         switch (numBolas) {
             case 1:
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 break;
             case 2:
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 break;
             case 3:
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_UNO, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 break;
             case 4:
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_UNO, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_CUATRO, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS));
+                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 break;
         }
 

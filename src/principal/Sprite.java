@@ -1,7 +1,6 @@
 package principal;
 
 import java.awt.image.BufferedImage;
-import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -15,8 +14,24 @@ import java.awt.Image;
  */
 public class Sprite {
 
+    // Imagenes que vamos a cargar
     private BufferedImage buffer;
-    private Color color;
+    private BufferedImage disparando;
+    private BufferedImage morir;
+    private BufferedImage ganar;
+    private BufferedImage derecha;
+    private BufferedImage derechaDoS;
+    private BufferedImage izquierda;
+    private BufferedImage izquierdaDos;
+    private BufferedImage explotar;
+    private BufferedImage disparo;
+    private BufferedImage disparo2;
+    private BufferedImage disparo3;
+    private BufferedImage disparo4;
+    private BufferedImage disparo5;
+    private BufferedImage disparo6;
+    private BufferedImage disparo7;
+
     // Dimensión:
     private int ancho;
     private int alto;
@@ -26,32 +41,20 @@ public class Sprite {
     // Velocidades:
     private int velX;
     private int velY;
-
+    // Contadores para hacer una especie de animación
     private int contX = 1;
     private int contY = 1;
 
-    public Sprite(Color color, int ancho, int alto, int posX, int posY, int velY) {
-        this.color = color;
-        this.ancho = ancho;
-        this.alto = alto;
-        this.posX = posX;
-        this.posY = posY;
-        this.velY = velY;
-        inicializarBuffer();
-    }
-
+    // Constructor de los bloques
     public Sprite(String rutaImagen, int ancho, int alto, int posX, int posY) {
         this.ancho = ancho;
         this.alto = alto;
         this.posX = posX;
         this.posY = posY;
-        do {
-            velX = aleatorio();
-            velY = aleatorio();
-        } while (velX == 0 || velY == 0);
         inicializarBuffer(rutaImagen);
     }
 
+    // Constructor del jugador
     public Sprite(String rutaImagen, int ancho, int alto, int posX, int posY, int velX) {
         this.ancho = ancho;
         this.alto = alto;
@@ -59,9 +62,11 @@ public class Sprite {
         this.posY = posY;
         this.velX = velX;
         inicializarBuffer(rutaImagen);
+        cargarSpritesPlayer();
     }
 
-    public Sprite(String rutaImagen, int ancho, int alto, int posX, int posY, int velY, int velX) {
+    // Constructor de las bolas
+    public Sprite(String rutaImagen, int ancho, int alto, int posX, int posY, int velY, int velX, String rutaExplo) {
         this.ancho = ancho;
         this.alto = alto;
         this.posX = posX;
@@ -69,20 +74,24 @@ public class Sprite {
         this.velY = velY;
         this.velX = velX;
         inicializarBuffer(rutaImagen);
+        cargarSpriteExplosion(rutaExplo);
+    }
+
+    // Constructor del arpon
+    public Sprite(int velY, String rutaImagen, int ancho, int alto, int posX, int posY) {
+        this.ancho = ancho;
+        this.alto = alto;
+        this.posX = posX;
+        this.posY = posY;
+        this.velY = velY;
+        inicializarBuffer(rutaImagen);
+        cargarSpritesArpon();
     }
 
     /**
-     * Crea un buffer vacio del color del Sprite.
-     */
-    private void inicializarBuffer() {
-        buffer = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
-        Graphics g = buffer.getGraphics();
-        g.setColor(color);
-        g.fillRect(0, 0, ancho, alto);
-    }
-
-    /**
-     * Crea un buffer vacio del color del Sprite por parámetros.
+     * Crea un buffer con una imagen que recibe por parametros
+     * 
+     * @param ruta ruta de la imagen que vamos a cargar
      */
     private void inicializarBuffer(String ruta) {
         BufferedImage imagen = null;
@@ -97,7 +106,7 @@ public class Sprite {
     }
 
     /**
-     * Método para estampar los cuadrados en el gráfico
+     * Método para estampar los sprites en el gráfico
      * 
      * @param g graphics
      */
@@ -105,67 +114,164 @@ public class Sprite {
         g.drawImage(buffer, posX, posY, null);
     }
 
-    public void disparar() {
-        alto += velY;
-        posY -= velY;
-
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
+    /**
+     * Método para cargar las imagenes del arpon una sola vez y no tener que volver
+     * a cargarlas si las queremos volver a usar
+     */
+    private void cargarSpritesArpon() {
         try {
-            if (alto > 100) {
-                imagen = ImageIO.read(new File("Imagenes/disparo02.png"));
-            } else {
-                imagen = ImageIO.read(new File("Imagenes/disparo.png"));
-            }
+            disparo = ImageIO.read(new File("Imagenes/disparo.png"));
 
-            if (alto > 200) {
-                imagen = ImageIO.read(new File("Imagenes/disparo03.png"));
-            }
+            disparo2 = ImageIO.read(new File("Imagenes/disparo02.png"));
 
-            if (alto > 300) {
-                imagen = ImageIO.read(new File("Imagenes/disparo04.png"));
-            }
+            disparo3 = ImageIO.read(new File("Imagenes/disparo03.png"));
 
-            if (alto > 400) {
-                imagen = ImageIO.read(new File("Imagenes/disparo05.png"));
-            }
+            disparo4 = ImageIO.read(new File("Imagenes/disparo04.png"));
 
-            if (alto > 500) {
-                imagen = ImageIO.read(new File("Imagenes/disparo06.png"));
-            }
+            disparo5 = ImageIO.read(new File("Imagenes/disparo05.png"));
 
-            if (alto > 600) {
-                imagen = ImageIO.read(new File("Imagenes/disparo07.png"));
-            }
+            disparo6 = ImageIO.read(new File("Imagenes/disparo06.png"));
 
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(ancho, alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+            disparo7 = ImageIO.read(new File("Imagenes/disparo07.png"));
 
-    public void animacionDisparar() {
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            imagen = ImageIO.read(new File("Imagenes/playerDisparando.png"));
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Método para mover el sprite
+     * Método para cargar las imagenes de la explosion una sola vez y no tener que
+     * volver a cargarlas si las queremos volver a usar
+     */
+    private void cargarSpriteExplosion(String ruta) {
+        try {
+            explotar = ImageIO.read(new File(ruta));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Método para cargar las imagenes del player y no tener que volver a cargarlas
+     * si las usamos de nuevo
+     */
+    private void cargarSpritesPlayer() {
+        try {
+            disparando = ImageIO.read(new File("Imagenes/playerDisparando.png"));
+            derecha = ImageIO.read(new File("Imagenes/playerDerecha.png"));
+            derechaDoS = ImageIO.read(new File("Imagenes/playerDerecha01.png"));
+            izquierda = ImageIO.read(new File("Imagenes/playerIzquierda.png"));
+            izquierdaDos = ImageIO.read(new File("Imagenes/playerIzquierda01.png"));
+            morir = ImageIO.read(new File("Imagenes/playerMorir.png"));
+            ganar = ImageIO.read(new File("Imagenes/playerGanar.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Método que aumenta el tamño del arpon hasta llegar al borde de la pantalla y
+     * segun sea su tamaño cambiamos el sprite para crear una especie de animación
+     */
+    public void disparar() {
+        alto += velY;
+        posY -= velY;
+
+        if (alto > 100) {
+            pintarAnimacion(disparo2);
+        } else {
+            pintarAnimacion(disparo);
+        }
+
+        if (alto > 200) {
+            pintarAnimacion(disparo3);
+        }
+
+        if (alto > 300) {
+            pintarAnimacion(disparo4);
+        }
+
+        if (alto > 400) {
+            pintarAnimacion(disparo5);
+        }
+
+        if (alto > 500) {
+            pintarAnimacion(disparo6);
+        }
+
+        if (alto > 600) {
+            pintarAnimacion(disparo7);
+        }
+    }
+
+    /**
+     * Método para cambiar el sprite de nuestro player al disparar y simular una
+     * animación, llamamos al metodo pintar animacion y le pasamos la imagen que
+     * queremos poner
+     */
+    public void animacionDisparar() {
+        pintarAnimacion(disparando);
+    }
+
+    /**
+     * Método para cambiar el sprite de nuestro player al morir y simular una
+     * animación, llamamos al metodo pintar animacion y le pasamos la imagen que
+     * queremos poner
+     */
+    public void animacionMorir() {
+        pintarAnimacion(morir);
+    }
+
+    /**
+     * Método para cambiar el sprite de nuestro player cuando elimna todas las bolas
+     * y simular una animación, llamamos al metodo pintar animacion y le pasamos la
+     * imagen que queremos poner
+     */
+    public void animacionGanar() {
+        pintarAnimacion(ganar);
+    }
+
+    /**
+     * Método que cambiar el sprite de la bola por una explosión y así simulamos la
+     * animación de la explosión de la bola
+     */
+    public void explotar() {
+        pintarAnimacion(explotar);
+    }
+
+    /**
+     * Método para poner la animacion del personaje por defecto, yo he elegido la
+     * dercha por defecto
+     */
+    public void playerDerecha() {
+        pintarAnimacion(derecha);
+    }
+
+    /**
+     * Método que cambiara la imagen del buffer por una imagen que recibe por
+     * parametros, y la ajusta al tamaño del sprite
+     * 
+     * @param image Imagen que queremos pintar y le pasamos por parametros
+     */
+    public void pintarAnimacion(Image image) {
+        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = buffer.getGraphics();
+        g.drawImage(image.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
+    }
+
+    /**
+     * Método para mover las bolas de colores de nuestro juego
+     * 
+     * @param ancho ancho de nuestra pantalla
+     * @param alto  alto de nuestra pantalla
      */
     public void mover(int ancho, int alto) {
-        // Mover el cuadrado
+        // Mover las bolas
         posX = posX + velX;
         posY = posY + velY;
 
-        // Comprobar si esta en el borde
+        // Comprobar si esta en el borde con el ancho jugable de nuestra pantalla
+        // Por la derecha
         if ((posX + this.ancho) >= ancho - 30) {
             velX = -Math.abs(velX); // Forzar velocidad negativa
         }
@@ -174,7 +280,8 @@ public class Sprite {
             velX = Math.abs(velX); // Forzar velocidad positiva
         }
 
-        // Comprobar si esta en el borde
+        // Comprobar si esta en el borde con el alto jugable de nuestra pantalla
+        // Por abajo
         if ((posY + this.alto) >= alto - 125) {
             velY = -Math.abs(velY); // Forzar velocidad negativa
         }
@@ -184,20 +291,20 @@ public class Sprite {
         }
     }
 
+    /**
+     * Método que cambia la imagen del sprite y lo mueve aumentando su posX para
+     * simular una animación de moverse, la animación la hacemos con un contador,
+     * dependiendo de si el contador es par o impar se cambia la imagen y simulamos
+     * una animación
+     * 
+     * @param ancho
+     */
     public void moverSpriteDerecha(int ancho) {
 
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            if (contX % 2 == 0) {
-                imagen = ImageIO.read(new File("Imagenes/playerDerecha.png"));
-            } else {
-                imagen = ImageIO.read(new File("Imagenes/playerDerecha01.png"));
-            }
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (contX % 2 == 0) {
+            pintarAnimacion(derecha);
+        } else {
+            pintarAnimacion(derechaDoS);
         }
 
         // Mover el cuadrado
@@ -209,33 +316,27 @@ public class Sprite {
         }
 
         contX++;
+        contY++;
     }
 
     public void moverSpriteIzquierda(int ancho) {
 
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            if (contY % 2 == 0) {
-                imagen = ImageIO.read(new File("Imagenes/playerIzquierda.png"));
-            } else {
-                imagen = ImageIO.read(new File("Imagenes/playerIzquierda01.png"));
-            }
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (contY % 2 == 0) {
+            pintarAnimacion(izquierda);
+        } else {
+            pintarAnimacion(izquierdaDos);
         }
 
         // Mover el cuadrado
         posX = posX - velX;
 
         // Por la izquierda
-        if (posX < 30) {
-            posX = 30; // Forzar velocidad positiva
+        if (posX < ancho) {
+            posX = ancho; // Forzar velocidad positiva
         }
 
         contY++;
+        contX++;
     }
 
     public boolean colisionCuadradoCirculo(Sprite cuadrado) {
@@ -309,20 +410,16 @@ public class Sprite {
         }
 
         // Por la derecha
-        if (((posX < cuadradoAncho) && (posX > cuadradoAncho-10))
+        if (((posX < cuadradoAncho) && (posX > cuadradoAncho - 10))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = Math.abs(velX);
         }
 
         // Por la izquierda
-        if ((((posX + ancho) > xCuadrado) && ((posX+ancho) < xCuadrado+10))
+        if ((((posX + ancho) > xCuadrado) && ((posX + ancho) < xCuadrado + 10))
                 && ((posY < cuadradoAlto) && (((posY + alto) > yCuadrado) || (posY) > yCuadrado))) {
             velX = -Math.abs(velX);
         }
-    }
-
-    public int aleatorio() {
-        return (int) (Math.random() * (5 - -5 + 1) + -5);
     }
 
     public BufferedImage getBuffer() {
@@ -380,53 +477,4 @@ public class Sprite {
     public void setVelY(int velY) {
         this.velY = velY;
     }
-
-    public void animacionMorir() {
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            imagen = ImageIO.read(new File("Imagenes/playerMorir.png"));
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void animacionGanar() {
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            imagen = ImageIO.read(new File("Imagenes/playerGanar.png"));
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void explotar(String ruta) {
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            imagen = ImageIO.read(new File(ruta));
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void playerDerecha() {
-        BufferedImage imagen = null;
-        buffer = new BufferedImage(this.ancho, this.alto, BufferedImage.TYPE_INT_ARGB);
-        try {
-            imagen = ImageIO.read(new File("Imagenes/playerDerecha.png"));
-            Graphics g = buffer.getGraphics();
-            g.drawImage(imagen.getScaledInstance(this.ancho, this.alto, Image.SCALE_SMOOTH), 0, 0, null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
