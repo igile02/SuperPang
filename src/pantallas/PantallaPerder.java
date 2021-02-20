@@ -2,8 +2,6 @@ package pantallas;
 
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,24 +11,35 @@ import java.awt.Image;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
-
-import javax.annotation.processing.FilerException;
 import javax.imageio.ImageIO;
 import java.awt.event.KeyEvent;
 import principal.PanelJuego;
 
+/**
+ * Clase Pantalla Perder
+ * 
+ * @author Iván Gil Esteban
+ */
 public class PantallaPerder implements Pantalla {
 
+    // Atributos de la clase
     private BufferedImage fondo;
     private Image img;
     private PanelJuego panelJuego;
     private Font pixel;
+    private int puntos;
+    private Color color;
 
-    public PantallaPerder(PanelJuego panelJuego) {
+    // Constructor
+    public PantallaPerder(PanelJuego panelJuego, int puntos) {
         this.panelJuego = panelJuego;
+        this.puntos = puntos;
         inicializarPantalla();
     }
 
+    /**
+     * Método para incializar los elementos de la pantalla
+     */
     @Override
     public void inicializarPantalla() {
         cargarFuente();
@@ -42,6 +51,9 @@ public class PantallaPerder implements Pantalla {
         img = fondo.getScaledInstance(panelJuego.getWidth(), panelJuego.getHeight(), Image.SCALE_SMOOTH);
     }
 
+    /**
+     * Método para cargar una fuente externa de java
+     */
     private void cargarFuente() {
         InputStream is = null;
         try {
@@ -52,16 +64,27 @@ public class PantallaPerder implements Pantalla {
         } catch (FontFormatException e) {
             e.printStackTrace();
         }
-        pixel = pixel.deriveFont(Font.BOLD|Font.ITALIC, 30);
+        pixel = pixel.deriveFont(Font.BOLD | Font.ITALIC, 30);
     }
 
+    /**
+     * Método para pintar en pantalla los distintos elementos que indiquemos
+     */
     @Override
     public void pintarPantalla(Graphics g) {
+        // Pintamos el fondo
         rellenarFondo(g);
 
+        // Pintamos un texto indicando volver al menu
         g.setFont(pixel);
+        g.setColor(color);
+        g.drawString("PULSA CUALQUIER TECLA PARA VOLVER AL MENU", panelJuego.getWidth() / 2 - 500,
+                panelJuego.getHeight() / 2);
+
+        // Pintamos los puntos conseguidos
         g.setColor(Color.BLUE);
-        g.drawString("PULSA CUALQUIER TECLA PARA VOLVER AL MENU", panelJuego.getWidth()/2-500, panelJuego.getHeight()/2);
+        g.drawString("HAS CONSEGUIDO " + puntos + " PUNTOS", panelJuego.getWidth() / 2 - 300,
+                panelJuego.getHeight() / 2 - 300);
     }
 
     /**
@@ -73,19 +96,35 @@ public class PantallaPerder implements Pantalla {
         g.drawImage(img, 0, 0, null);
     }
 
+    /**
+     * Método que ejecuta las acciones cada frame
+     */
     @Override
     public void ejecutarFrame() {
-        // TODO Auto-generated method stub
-
+        try {
+            Thread.sleep(500);
+            //Cambiamos el color cada 500ms
+            color = color == Color.BLUE ? Color.YELLOW : Color.BLUE;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
+    /**
+     * Método que realiza las acciones correspondientes al pulsar el raton
+     */
     @Override
     public void pulsarRaton(MouseEvent e) {
+        // Cambiamos de pantalla a la pantalla inicio
         panelJuego.cambiarPantalla(new PantallaInicio(panelJuego));
     }
 
+    /**
+     * Método que realiza las acciones correspondientes al pulsar el teclado
+     */
     @Override
-    public void pulsarTeclado(KeyEvent  e) {
+    public void pulsarTeclado(KeyEvent e) {
+        // Cambiamos de pantalla a la pantalla inicio
         panelJuego.cambiarPantalla(new PantallaInicio(panelJuego));
     }
 

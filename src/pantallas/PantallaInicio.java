@@ -3,7 +3,6 @@ package pantallas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +14,11 @@ import principal.PanelJuego;
 import java.awt.event.KeyEvent;
 import java.awt.Image;
 
+/**
+ * Clase Pantalla Inicio
+ * 
+ * @author Iván Gil Esteban
+ */
 public class PantallaInicio implements Pantalla {
 
     private Font pixel;
@@ -23,11 +27,15 @@ public class PantallaInicio implements Pantalla {
     // Referencia panelJuego
     private PanelJuego panelJuego;
 
+    // Constructor
     public PantallaInicio(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
         inicializarPantalla();
     }
 
+    /**
+     * Método para inicializar los elementos de la pantalla
+     */
     @Override
     public void inicializarPantalla() {
         cargarFuente();
@@ -41,15 +49,23 @@ public class PantallaInicio implements Pantalla {
         color = Color.YELLOW;
     }
 
+    /**
+     * Método para pintar los elementos de la pantalla
+     */
     @Override
     public void pintarPantalla(Graphics g) {
+        // Rellenamos fondo
         rellenarFondo(g);
 
+        // Pintamos un texto
         g.setFont(pixel);
         g.setColor(color);
-        g.drawString("PULSE CUALQUIER TECLA PARA EMPEZAR", panelJuego.getWidth()/2-450, panelJuego.getHeight()/2);
+        g.drawString("PULSE CUALQUIER TECLA PARA EMPEZAR", panelJuego.getWidth() / 2 - 450, panelJuego.getHeight() / 2);
     }
 
+    /**
+     * Método para cargar una fuente externa a ajava
+     */
     private void cargarFuente() {
         InputStream is = null;
         try {
@@ -58,7 +74,7 @@ public class PantallaInicio implements Pantalla {
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
         }
-        pixel = pixel.deriveFont(Font.BOLD|Font.ITALIC, 30);
+        pixel = pixel.deriveFont(Font.BOLD | Font.ITALIC, 30);
     }
 
     /**
@@ -70,23 +86,33 @@ public class PantallaInicio implements Pantalla {
         g.drawImage(fondo, 0, 0, null);
     }
 
-
+    /**
+     * Método que ejecuta las acciones de nuestra pantalla cada frame
+     */
     @Override
     public void ejecutarFrame() {
         try {
             Thread.sleep(500);
+            // Cambiamos el color cada 500ms
+            color = color == Color.RED ? Color.YELLOW : Color.RED;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Método que cambia de pantalla al pulsar el raton
+     */
     @Override
     public void pulsarRaton(MouseEvent e) {
         panelJuego.cambiarPantalla(new PantallaJuego(panelJuego));
     }
 
+    /**
+     * Método que cambia de pantalla al pulsar el teclado
+     */
     @Override
-    public void pulsarTeclado(KeyEvent  e) {
+    public void pulsarTeclado(KeyEvent e) {
         panelJuego.cambiarPantalla(new PantallaJuego(panelJuego));
     }
 

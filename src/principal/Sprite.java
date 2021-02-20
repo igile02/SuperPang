@@ -297,7 +297,7 @@ public class Sprite {
      * dependiendo de si el contador es par o impar se cambia la imagen y simulamos
      * una animación
      * 
-     * @param ancho
+     * @param ancho ancho limite del panel jugable
      */
     public void moverSpriteDerecha(int ancho) {
 
@@ -319,6 +319,14 @@ public class Sprite {
         contY++;
     }
 
+    /**
+     * Método que cambia la imagen del sprite y lo mueve disminuyendo su posX para
+     * simular una animación de moverse, la animación la hacemos con un contador,
+     * dependiendo de si el contador es par o impar se cambia la imagen y simulamos
+     * una animación
+     * 
+     * @param ancho ancho limite del panel jugable
+     */
     public void moverSpriteIzquierda(int ancho) {
 
         if (contY % 2 == 0) {
@@ -339,6 +347,12 @@ public class Sprite {
         contX++;
     }
 
+    /**
+     * Método para comprobar la colision entre un cuadrado y un circulo
+     * 
+     * @param cuadrado sprite circular que recibimos por parametros
+     * @return true si hay colision y false en caso contrario
+     */
     public boolean colisionCuadradoCirculo(Sprite cuadrado) {
         int cx;
         int cy;
@@ -369,6 +383,12 @@ public class Sprite {
         }
     }
 
+    /**
+     * Método para comprobar la colision entre dos sprites cuadrados
+     * 
+     * @param cuadrado sprite que le pasamos por parametro
+     * @return true si hay colision false en caso contrario
+     */
     public boolean colision(Sprite cuadrado) {
         int borde_der = 0;
         int borde_abaj = 0;
@@ -390,9 +410,15 @@ public class Sprite {
         return colision;
     }
 
+    /**
+     * Método para comprobar si las bolas colsionan por arriba y por abajo o por los
+     * lados, para en caso de que haya colsion cambiar su velocidad y simular el
+     * rebote de las pelotas en los bloques
+     * 
+     * @param cuadrado sprite del bloque con el que simulamos los rebotes
+     */
     public void colisionLadosUpDown(Sprite cuadrado) {
         int yCuadrado = cuadrado.getPosY();
-
         int cuadradoAlto = yCuadrado + cuadrado.getAlto();
         int xCuadrado = cuadrado.getPosX();
         int cuadradoAncho = xCuadrado + cuadrado.getAncho();

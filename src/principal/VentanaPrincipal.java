@@ -42,10 +42,7 @@ public class VentanaPrincipal {
      */
 	public void inicializarListeners(){
         
-	}
-    
-    
-  
+	}  
 
 	/**
 	 * Método que realiza todas las llamadas necesarias para inicializar la ventana correctamente.

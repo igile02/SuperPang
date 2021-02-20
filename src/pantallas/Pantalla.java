@@ -27,7 +27,13 @@ public interface Pantalla {
      */
     public void pulsarRaton(MouseEvent e);
 
+    /**
+     * Método que se llevará a cabo cuando se pulse el teclado
+     */
     public void pulsarTeclado(KeyEvent e);
 
+    /**
+     * Método que se llevara a cabo cuando se suelte el teclado
+     */
     public void soltarTeclado(KeyEvent e);
 }
