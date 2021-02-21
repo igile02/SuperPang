@@ -20,8 +20,10 @@ public class Sprite {
     private BufferedImage morir;
     private BufferedImage ganar;
     private BufferedImage derecha;
+    private BufferedImage derechaUno;
     private BufferedImage derechaDoS;
     private BufferedImage izquierda;
+    private BufferedImage izquierdaUno;
     private BufferedImage izquierdaDos;
     private BufferedImage explotar;
     private BufferedImage disparo;
@@ -159,8 +161,10 @@ public class Sprite {
         try {
             disparando = ImageIO.read(new File("Imagenes/playerDisparando.png"));
             derecha = ImageIO.read(new File("Imagenes/playerDerecha.png"));
+            derechaUno = ImageIO.read(new File("Imagenes/playerDerecha00.png"));
             derechaDoS = ImageIO.read(new File("Imagenes/playerDerecha01.png"));
             izquierda = ImageIO.read(new File("Imagenes/playerIzquierda.png"));
+            izquierdaUno = ImageIO.read(new File("Imagenes/playerIzquierda00.png"));
             izquierdaDos = ImageIO.read(new File("Imagenes/playerIzquierda01.png"));
             morir = ImageIO.read(new File("Imagenes/playerMorir.png"));
             ganar = ImageIO.read(new File("Imagenes/playerGanar.png"));
@@ -301,9 +305,11 @@ public class Sprite {
      */
     public void moverSpriteDerecha(int ancho) {
 
-        if (contX % 2 == 0) {
+        if (contX == 0) {
             pintarAnimacion(derecha);
-        } else {
+        } else if(contX == 1) {
+            pintarAnimacion(derechaUno);
+        } else if(contX == 2) {
             pintarAnimacion(derechaDoS);
         }
 
@@ -316,7 +322,9 @@ public class Sprite {
         }
 
         contX++;
-        contY++;
+        if(contX>=3){
+            contX=0;
+        }
     }
 
     /**
@@ -329,9 +337,11 @@ public class Sprite {
      */
     public void moverSpriteIzquierda(int ancho) {
 
-        if (contY % 2 == 0) {
+        if (contY == 0) {
             pintarAnimacion(izquierda);
-        } else {
+        } else if(contY == 1) {
+            pintarAnimacion(izquierdaUno);
+        } else if(contY == 2) {
             pintarAnimacion(izquierdaDos);
         }
 
@@ -344,7 +354,9 @@ public class Sprite {
         }
 
         contY++;
-        contX++;
+        if(contY>=3){
+            contY=0;
+        }
     }
 
     /**

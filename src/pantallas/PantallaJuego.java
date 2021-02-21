@@ -35,7 +35,7 @@ public class PantallaJuego implements Pantalla {
 
     // Distintos Fondos
     private final static String[] FONDOS = { "Imagenes/mexico.png", "Imagenes/china.png", "Imagenes/arabia.png",
-            "Imagenes/playa.png", "Imagenes/japon.png" };
+            "Imagenes/playa.png", "Imagenes/japon.png", "Imagenes/londres.png", "Imagenes/rumania.png" };
 
     // Constantes de las bolas
     private final static int LADO_BOLA = 200;
@@ -572,6 +572,7 @@ public class PantallaJuego implements Pantalla {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        redimensionarFondo();
     }
 
     /**
