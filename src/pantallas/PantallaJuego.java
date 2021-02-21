@@ -33,7 +33,7 @@ public class PantallaJuego implements Pantalla {
     private final static int PUNTUACION_BOLAS_MEDIANAS = 400;
     private final static int PUNTUACION_BOLAS_PEQUENIAS = 800;
     private final static int PUNTUACION_BOLAS_MINIS = 1600;
-    private final static int MAX_BOLAS = 4;
+    private final static int MAX_BOLAS = 3;
     private final static int MIN_BOLAS = 1;
     private final static String[] COLOR_BOLA = { "Imagenes/bolaRoja.png", "Imagenes/bolaAzul.png",
             "Imagenes/bolaVerde.png" };
@@ -718,16 +718,6 @@ public class PantallaJuego implements Pantalla {
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
                         VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
-                break;
-            case 4:
-                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_UNO, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
-                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_DOS, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
-                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_TRES, POSY_BOLAS, VELOCIDAD_BOLAS,
-                        VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
-                bolas.add(new Sprite(colorBola, LADO_BOLA, LADO_BOLA, POSX_CUATRO, POSY_BOLAS, VELOCIDAD_BOLAS,
                         VELOCIDAD_BOLAS, COLOR_EXP[aleBola]));
                 break;
         }
