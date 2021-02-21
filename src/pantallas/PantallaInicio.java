@@ -15,7 +15,8 @@ import java.awt.event.KeyEvent;
 import java.awt.Image;
 
 /**
- * Clase Pantalla Inicio
+ * Clase Pantalla Inicio Pantalla inicial de nuestro juego que muestra el logo
+ * de este y un mensaje para empezar a jugar.
  * 
  * @author Iván Gil Esteban
  */

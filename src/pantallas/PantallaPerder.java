@@ -16,7 +16,8 @@ import java.awt.event.KeyEvent;
 import principal.PanelJuego;
 
 /**
- * Clase Pantalla Perder
+ * Clase Pantalla Perder Pantalla que se muestra cuando el usuario pierde todas
+ * las vidas, muestra unos mensajes y los puntos conseguidos.
  * 
  * @author Iván Gil Esteban
  */
@@ -103,7 +104,7 @@ public class PantallaPerder implements Pantalla {
     public void ejecutarFrame() {
         try {
             Thread.sleep(500);
-            //Cambiamos el color cada 500ms
+            // Cambiamos el color cada 500ms
             color = color == Color.BLUE ? Color.YELLOW : Color.BLUE;
         } catch (InterruptedException e) {
             e.printStackTrace();

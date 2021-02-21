@@ -12,7 +12,8 @@ import pantallas.Pantalla;
 import pantallas.PantallaInicio;
 
 /**
- * Clase PanelJuego
+ * Clase PanelJuego Se ecnarga de realizar todas las acciones de las diferentes
+ * pantallas de nuestro juego
  * 
  * @author Iván Gil Esteban
  */

@@ -4,6 +4,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.KeyEvent;
 import java.awt.Graphics;
 
+/**
+ * Interfaz pantalla que se implementara en todas nuestras pantallas de juego
+ */
 public interface Pantalla {
     
     /**

@@ -19,6 +19,18 @@ import principal.PanelJuego;
 import principal.Sprite;
 import java.awt.Toolkit;
 
+/**
+ * Clase PantallaJuego Esta clase es la que se encarga de toda la mecanica del
+ * juego, se encarga de pintar todos los componentes del juego
+ * {@link #pintarPantalla(Graphics)}, de moverlos {@link #moverSprites()}y de
+ * comprobrar sus colisiones {@link #comprobarColisiones()}, también se encarga
+ * de las respectivas comprobaciones para perder vidas {@link #perderVida()},
+ * disminuir el tiempo {@link #contarTiempo()}, cambiar de nivel
+ * {@link #cargarNivel()}, y por último finalizar la partida
+ * {@link #gameOver()}.
+ * 
+ * @author Iván Gil Esteban
+ */
 public class PantallaJuego implements Pantalla {
 
     // Distintos Fondos
@@ -304,7 +316,7 @@ public class PantallaJuego implements Pantalla {
             respawnear();
         } else {
             // Si no tenemos más vidas cambiamos a la pantalla game over
-            panelJuego.cambiarPantalla(new PantallaPerder(panelJuego, puntos));
+            gameOver();
         }
 
     }
@@ -407,7 +419,7 @@ public class PantallaJuego implements Pantalla {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        panelJuego.cambiarPantalla(new PantallaPerder(panelJuego, puntos));
+                        gameOver();
                     }
                 }
             }
@@ -742,5 +754,9 @@ public class PantallaJuego implements Pantalla {
             posicionesBloquesY.add(POSY_UNO_BLOQUES);
         }
         posicionesBloquesY.add(POSY_DOS_BLOQUES);
+    }
+
+    public void gameOver() {
+        panelJuego.cambiarPantalla(new PantallaPerder(panelJuego, puntos));
     }
 }
